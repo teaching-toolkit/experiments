@@ -1,0 +1,1172 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gedächtnisexperimente – N-Back & Sperling</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --fg:#111111;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --ok:#0f766e;
+      --bad:#b91c1c;
+      --card:#ffffff;
+      --shadow: 0 6px 24px rgba(0,0,0,.08);
+      --radius: 16px;
+      --pad: 18px;
+      --btn:#111111;
+      --btnfg:#ffffff;
+      --btn2:#ffffff;
+      --btn2fg:#111111;
+      --btnBorder:#111111;
+      --focus: #2563eb;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color:var(--fg);
+      background:var(--bg);
+      line-height:1.35;
+    }
+    .wrap{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 18px 14px 26px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: var(--pad);
+    }
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom: 12px;
+    }
+    h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size: 15px;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .btn{
+      appearance:none;
+      border:1px solid var(--btnBorder);
+      background: var(--btn);
+      color: var(--btnfg);
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 18px;
+      cursor:pointer;
+      min-height: 48px;
+      user-select:none;
+      transition: transform .02s ease, opacity .15s ease;
+    }
+    .btn:active{ transform: scale(.99); }
+    .btn.secondary{
+      background: var(--btn2);
+      color: var(--btn2fg);
+    }
+    .btn.small{
+      font-size: 14px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      min-height: 40px;
+    }
+    .btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--border);
+      padding:8px 10px;
+      border-radius: 999px;
+      font-size: 14px;
+      color:var(--muted);
+      background:#fafafa;
+    }
+    .hr{
+      height:1px;
+      background:var(--border);
+      margin: 14px 0;
+    }
+    .hidden{ display:none !important; }
+
+    /* Experiment UI */
+    .title2{
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+    .instr{
+      margin:0 0 12px;
+      color: var(--fg);
+      font-size: 16px;
+    }
+    .muted{ color: var(--muted); }
+    .center{
+      text-align:center;
+    }
+
+    .stimulusBox{
+      margin: 12px 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      height: min(42vh, 260px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#ffffff;
+    }
+    .stimulus{
+      font-size: clamp(64px, 10vw, 120px);
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    .feedback{
+      min-height: 28px;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 8px 0 2px;
+    }
+    .feedback.ok{ color: var(--ok); }
+    .feedback.bad{ color: var(--bad); }
+
+    .progressRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      color:var(--muted);
+      font-size: 14px;
+      margin-top: 8px;
+      flex-wrap:wrap;
+    }
+
+    /* Sperling grid */
+    .gridWrap{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:center;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(34px, 56px));
+      gap: 10px 14px;
+      align-items:center;
+      justify-items:center;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      min-width: min(92vw, 360px);
+      background:#ffffff;
+    }
+    .cell{
+      font-size: clamp(22px, 5vw, 34px);
+      font-weight: 700;
+      width: 100%;
+      text-align:center;
+      padding: 6px 0;
+      border-radius: 10px;
+    }
+    .rowCue{
+      width: min(92vw, 360px);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 12px;
+      background:#fafafa;
+    }
+    .cueText{
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .cueArrow{
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .inputRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      align-items:center;
+      margin-top: 8px;
+    }
+    input[type="text"]{
+      font-size: 18px;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      min-width: min(92vw, 420px);
+      outline:none;
+    }
+    input[type="text"]:focus{
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+    }
+
+    /* Result simple table */
+    table{
+      width:100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 15px;
+    }
+    th, td{
+      border-bottom: 1px solid var(--border);
+      padding: 10px 8px;
+      text-align:left;
+      vertical-align:top;
+    }
+    th{ color: var(--muted); font-weight: 600; }
+
+    .note{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Small screens */
+    @media (max-width: 420px){
+      .btn{ width:100%; }
+      .stimulusBox{ height: 210px; }
+    }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce){
+      .btn{ transition:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="application" aria-label="Gedächtnisexperimente">
+      <header>
+        <div>
+          <h1>Gedächtnisexperimente</h1>
+          <p class="sub">Zwei kurze Aufgaben (N-Back &amp; Sperling) zum direkten Erleben von Arbeits- und ikonischem Gedächtnis.</p>
+        </div>
+        <div class="row">
+          <span class="pill" id="statusPill">Bereit</span>
+        </div>
+      </header>
+
+      <!-- HOME -->
+      <section id="screenHome">
+        <div class="hr"></div>
+        <p class="instr">
+          Wähle ein Experiment. Keine Daten werden gespeichert. (Dauer: ca. 2–3 Minuten pro Experiment)
+        </p>
+        <div class="row">
+          <button class="btn" id="goNBack">N-Back Test (Arbeitsgedächtnis)</button>
+          <button class="btn secondary" id="goSperling">Sperling Task (Ikonisches Gedächtnis)</button>
+        </div>
+        <p class="note">
+          Tipp: Im N-Back kannst du auch mit der Tastatur antworten (<b>J</b>=Match, <b>N</b>=No Match).
+        </p>
+      </section>
+
+      <!-- N-BACK INTRO -->
+      <section id="screenNBackIntro" class="hidden">
+        <div class="hr"></div>
+        <h2 class="title2">N-Back Test</h2>
+        <p class="instr">
+          Klicke <b>Match</b>, wenn der aktuelle Buchstabe mit dem von <b>N Positionen zurück</b> übereinstimmt. Sonst <b>No Match</b>.
+        </p>
+        <div class="row" style="margin-bottom:10px;">
+          <span class="pill"><b>Level</b>:
+            <select id="nbackLevel" aria-label="N-Back Level" style="font-size:16px; margin-left:8px; padding:6px 8px; border-radius:10px; border:1px solid var(--border);">
+              <option value="1">1-Back (leicht)</option>
+              <option value="2" selected>2-Back (mittel)</option>
+              <option value="3">3-Back (schwer)</option>
+            </select>
+          </span>
+          <span class="pill"><b>Trials</b>: 24</span>
+          <span class="pill"><b>Timing</b>: 500ms Stimulus · 2000ms pro Trial</span>
+        </div>
+
+        <div class="row">
+          <button class="btn" id="startNBack">Start</button>
+          <button class="btn secondary" id="backHome1">Zurück</button>
+        </div>
+        <p class="note">Hinweis: Fehlantworten sind normal – es geht ums Erleben der Belastungsgrenze.</p>
+      </section>
+
+      <!-- N-BACK TASK -->
+      <section id="screenNBackTask" class="hidden">
+        <div class="hr"></div>
+
+        <div class="progressRow">
+          <div><b>N-Back</b> · Level: <span id="nbackLevelLabel">2</span></div>
+          <div>Trial <span id="nbackTrialNo">1</span> / <span id="nbackTotal">24</span></div>
+        </div>
+
+        <div class="stimulusBox" aria-label="Stimulusbereich">
+          <div class="stimulus" id="nbackStimulus" aria-live="polite">–</div>
+        </div>
+
+        <div class="center">
+          <div class="feedback" id="nbackFeedback" aria-live="polite"></div>
+          <div class="muted" style="font-size:14px;">Tastatur: <b>J</b>=Match · <b>N</b>=No Match</div>
+        </div>
+
+        <div class="row" style="justify-content:center; margin-top: 10px;">
+          <button class="btn" id="btnMatch">Match (J)</button>
+          <button class="btn secondary" id="btnNoMatch">No Match (N)</button>
+        </div>
+
+        <div class="progressRow">
+          <div>Antwortfenster: <span id="nbackCountdown">2.0</span>s</div>
+          <div class="muted">Wenn du nicht antwortest: zählt als falsch.</div>
+        </div>
+      </section>
+
+      <!-- N-BACK RESULT -->
+      <section id="screenNBackResult" class="hidden">
+        <div class="hr"></div>
+        <h2 class="title2">N-Back Ergebnis</h2>
+        <p class="instr" id="nbackSummary"></p>
+
+        <table aria-label="N-Back Statistik">
+          <tbody>
+            <tr><th>Treffer (Match korrekt)</th><td id="nbackHits">–</td></tr>
+            <tr><th>Falschalarm (Match gedrückt, aber kein Match)</th><td id="nbackFA">–</td></tr>
+            <tr><th>Verpasst (kein Match gedrückt, aber Match)</th><td id="nbackMiss">–</td></tr>
+            <tr><th>Korrekte Zurückweisung (No Match korrekt)</th><td id="nbackCR">–</td></tr>
+            <tr><th>Ø Reaktionszeit (nur beantwortete Trials)</th><td id="nbackRT">–</td></tr>
+          </tbody>
+        </table>
+
+        <p class="note">
+          Interpretation (kurz): Wenn Level ↑, steigt die Beanspruchung des Arbeitsgedächtnisses – Fehler werden wahrscheinlicher.
+        </p>
+
+        <div class="row">
+          <button class="btn" id="retryNBack">Nochmal</button>
+          <button class="btn secondary" id="toHomeFromNBack">Anderes Experiment</button>
+        </div>
+      </section>
+
+      <!-- SPERLING INTRO -->
+      <section id="screenSperlingIntro" class="hidden">
+        <div class="hr"></div>
+        <h2 class="title2">Sperling Task</h2>
+        <p class="instr">
+          Ein Buchstabengitter wird sehr kurz gezeigt. Danach zeigt ein Hinweis, <b>welche Reihe</b> du eingeben sollst (Teilbericht).
+        </p>
+
+        <div class="row" style="margin-bottom:10px;">
+          <span class="pill"><b>Grid</b>: 3×4 (Konsonanten)</span>
+          <span class="pill"><b>Anzeige</b>: 50ms</span>
+          <span class="pill"><b>Delays</b>: 0 / 250 / 500ms</span>
+        </div>
+
+        <div class="row" style="margin-bottom:10px;">
+          <span class="pill">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="sperlingBeep" checked />
+              Kurzer Ton beim Hinweis
+            </label>
+          </span>
+
+          <span class="pill">
+            <label style="display:flex; align-items:center; gap:8px;">
+              Modus:
+              <select id="sperlingMode" aria-label="Sperling Modus" style="font-size:16px; padding:6px 8px; border-radius:10px; border:1px solid var(--border);">
+                <option value="partial" selected>Teilbericht (Standard)</option>
+                <option value="full">Vollbericht (Vergleich)</option>
+              </select>
+            </label>
+          </span>
+        </div>
+
+        <div class="row">
+          <button class="btn" id="startSperling">Start</button>
+          <button class="btn secondary" id="backHome2">Zurück</button>
+        </div>
+
+        <p class="note">
+          Eingabe: Tippe die Buchstaben <b>von links nach rechts</b> (ohne Leerzeichen). Gross/Klein egal.
+        </p>
+      </section>
+
+      <!-- SPERLING TASK -->
+      <section id="screenSperlingTask" class="hidden">
+        <div class="hr"></div>
+
+        <div class="progressRow">
+          <div><b>Sperling</b> · <span id="sperlingModeLabel">Teilbericht</span></div>
+          <div>Trial <span id="sperlingTrialNo">1</span> / <span id="sperlingTotal">9</span></div>
+        </div>
+
+        <div class="gridWrap" style="margin-top:10px;">
+          <div class="grid" id="sperlingGrid" aria-label="Buchstabengitter" aria-live="polite">
+            <!-- cells inserted -->
+          </div>
+
+          <div class="rowCue" id="sperlingCueBox" aria-label="Hinweis" aria-live="polite">
+            <div class="cueText" id="sperlingCueText">Hinweis: –</div>
+            <div class="cueArrow" id="sperlingCueArrow"> </div>
+          </div>
+        </div>
+
+        <div class="center" style="margin-top:10px;">
+          <div class="feedback" id="sperlingFeedback" aria-live="polite"></div>
+        </div>
+
+        <div class="inputRow">
+          <input type="text" id="sperlingInput" inputmode="latin" autocomplete="off" autocapitalize="characters" spellcheck="false"
+                 placeholder="Eingabe… (Enter zum Absenden)" />
+          <button class="btn" id="sperlingSubmit">Absenden</button>
+        </div>
+
+        <div class="progressRow">
+          <div>Delay: <span id="sperlingDelayLabel">–</span> ms</div>
+          <div class="muted" id="sperlingPrompt">Warte auf Anzeige…</div>
+        </div>
+      </section>
+
+      <!-- SPERLING RESULT -->
+      <section id="screenSperlingResult" class="hidden">
+        <div class="hr"></div>
+        <h2 class="title2">Sperling Ergebnis</h2>
+
+        <p class="instr" id="sperlingSummary"></p>
+
+        <div id="sperlingResultPartial" class="hidden">
+          <table aria-label="Sperling Teilbericht Zusammenfassung">
+            <thead>
+              <tr><th>Delay</th><th>Ø korrekt (max. 4)</th><th>Trials</th></tr>
+            </thead>
+            <tbody id="sperlingDelayTable"></tbody>
+          </table>
+          <p class="note">
+            Typischer Effekt: Je länger der Delay, desto weniger bleibt aus dem ikonischen Gedächtnis verfügbar.
+          </p>
+        </div>
+
+        <div id="sperlingResultFull" class="hidden">
+          <table aria-label="Sperling Vollbericht Zusammenfassung">
+            <tbody>
+              <tr><th>Ø korrekt (max. 12)</th><td id="sperlingFullAvg">–</td></tr>
+              <tr><th>Beste Runde</th><td id="sperlingFullBest">–</td></tr>
+            </tbody>
+          </table>
+          <p class="note">
+            Vollbericht ist meist deutlich schwieriger – obwohl kurzzeitig “mehr” verfügbar war, geht viel verloren, bevor alles berichtet ist.
+          </p>
+        </div>
+
+        <div class="row">
+          <button class="btn" id="retrySperling">Nochmal</button>
+          <button class="btn secondary" id="toHomeFromSperling">Anderes Experiment</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    // ---------------------------
+    // Utilities
+    // ---------------------------
+    const $ = (id) => document.getElementById(id);
+
+    function setStatus(text){
+      $("statusPill").textContent = text;
+    }
+
+    function showScreen(id){
+      const screens = [
+        "screenHome",
+        "screenNBackIntro","screenNBackTask","screenNBackResult",
+        "screenSperlingIntro","screenSperlingTask","screenSperlingResult"
+      ];
+      screens.forEach(s => $(s).classList.toggle("hidden", s !== id));
+      window.scrollTo({top:0, left:0, behavior:"instant"});
+    }
+
+    function choice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+
+    function mean(nums){
+      if(!nums.length) return 0;
+      return nums.reduce((s,x)=>s+x,0)/nums.length;
+    }
+
+    function formatMs(ms){
+      if(ms == null) return "–";
+      return Math.round(ms) + " ms";
+    }
+
+    // Consonants (avoid vowels to reduce accidental word formation)
+    const CONSONANTS = "BCDFGHJKLMNPQRSTVWXYZ".split("");
+
+    // ---------------------------
+    // Global cancellation handling
+    // ---------------------------
+    let activeTimers = [];
+    function later(fn, ms){
+      const t = setTimeout(fn, ms);
+      activeTimers.push(t);
+      return t;
+    }
+    function clearAllTimers(){
+      activeTimers.forEach(t => clearTimeout(t));
+      activeTimers = [];
+    }
+
+    // ---------------------------
+    // HOME navigation
+    // ---------------------------
+    $("goNBack").addEventListener("click", () => {
+      stopAll();
+      setStatus("N-Back bereit");
+      showScreen("screenNBackIntro");
+    });
+    $("goSperling").addEventListener("click", () => {
+      stopAll();
+      setStatus("Sperling bereit");
+      showScreen("screenSperlingIntro");
+    });
+    $("backHome1").addEventListener("click", () => { stopAll(); setStatus("Bereit"); showScreen("screenHome"); });
+    $("backHome2").addEventListener("click", () => { stopAll(); setStatus("Bereit"); showScreen("screenHome"); });
+    $("toHomeFromNBack").addEventListener("click", () => { stopAll(); setStatus("Bereit"); showScreen("screenHome"); });
+    $("toHomeFromSperling").addEventListener("click", () => { stopAll(); setStatus("Bereit"); showScreen("screenHome"); });
+
+    function stopAll(){
+      clearAllTimers();
+      nback.stop();
+      sperling.stop();
+      window.removeEventListener("keydown", nback.keyHandler);
+    }
+
+    // ============================================================
+    // N-BACK
+    // ============================================================
+    const nback = {
+      running:false,
+      N:2,
+      totalTrials:24,
+      trialIndex:0,
+      seq:[],
+      awaiting:false,
+      responded:false,
+      trialStartTs:0,
+      responseTimer:null,
+      countdownTimer:null,
+
+      // stats
+      hits:0, fa:0, miss:0, cr:0,
+      correct:0,
+      rts:[],
+      timeouts:0,
+
+      init(){
+        $("startNBack").addEventListener("click", () => this.start());
+        $("retryNBack").addEventListener("click", () => {
+          setStatus("N-Back bereit");
+          showScreen("screenNBackIntro");
+        });
+
+        $("btnMatch").addEventListener("click", () => this.answer(true));
+        $("btnNoMatch").addEventListener("click", () => this.answer(false));
+
+        this.keyHandler = (e) => {
+          if(!this.running) return;
+          if(e.key === "j" || e.key === "J"){ e.preventDefault(); this.answer(true); }
+          if(e.key === "n" || e.key === "N"){ e.preventDefault(); this.answer(false); }
+        };
+      },
+
+      stop(){
+        this.running = false;
+        this.awaiting = false;
+        this.responded = false;
+      },
+
+      resetStats(){
+        this.hits = this.fa = this.miss = this.cr = 0;
+        this.correct = 0;
+        this.rts = [];
+        this.timeouts = 0;
+      },
+
+      buildSequence(){
+        const N = this.N;
+        const trials = this.totalTrials;
+
+        // Decide match trials (approx 30%) but only possible from index >= N
+        const desiredMatches = Math.round((trials - N) * 0.30);
+        const matchPositions = new Set();
+        while(matchPositions.size < desiredMatches){
+          const pos = N + Math.floor(Math.random() * (trials - N));
+          matchPositions.add(pos);
+        }
+
+        const seq = new Array(trials);
+        // Fill first N with random letters
+        for(let i=0; i<N; i++){
+          seq[i] = choice(CONSONANTS);
+        }
+        // Fill rest with controlled matches/non-matches
+        for(let i=N; i<trials; i++){
+          if(matchPositions.has(i)){
+            seq[i] = seq[i-N];
+          } else {
+            // choose a letter that is not equal to seq[i-N] to avoid accidental match
+            let letter = choice(CONSONANTS);
+            while(letter === seq[i-N]){
+              letter = choice(CONSONANTS);
+            }
+            seq[i] = letter;
+          }
+        }
+
+        // Create trial objects with ground truth match
+        this.seq = seq.map((stim, i) => ({
+          stim,
+          isMatch: i >= N ? (stim === seq[i-N]) : false
+        }));
+      },
+
+      start(){
+        stopAll();
+        clearAllTimers();
+
+        this.N = parseInt($("nbackLevel").value, 10);
+        $("nbackLevelLabel").textContent = String(this.N);
+        $("nbackTotal").textContent = String(this.totalTrials);
+
+        this.resetStats();
+        this.buildSequence();
+        this.trialIndex = 0;
+        this.running = true;
+
+        $("nbackStimulus").textContent = "–";
+        $("nbackFeedback").textContent = "";
+        $("nbackFeedback").className = "feedback";
+        $("nbackCountdown").textContent = "2.0";
+        $("nbackTrialNo").textContent = "1";
+
+        setStatus("N-Back läuft");
+        showScreen("screenNBackTask");
+
+        window.addEventListener("keydown", this.keyHandler);
+
+        this.runTrial();
+      },
+
+      setButtonsEnabled(enabled){
+        $("btnMatch").disabled = !enabled;
+        $("btnNoMatch").disabled = !enabled;
+      },
+
+      runTrial(){
+        if(!this.running) return;
+
+        const i = this.trialIndex;
+        if(i >= this.totalTrials){
+          this.finish();
+          return;
+        }
+
+        $("nbackTrialNo").textContent = String(i+1);
+
+        // Present stimulus
+        const trial = this.seq[i];
+        this.responded = false;
+        this.awaiting = true;
+        this.setButtonsEnabled(true);
+
+        $("nbackFeedback").textContent = "";
+        $("nbackFeedback").className = "feedback";
+
+        $("nbackStimulus").textContent = trial.stim;
+
+        this.trialStartTs = performance.now();
+        const responseWindowMs = 2000;
+
+        // Hide stimulus after 500ms
+        later(() => {
+          if(!this.running) return;
+          $("nbackStimulus").textContent = "";
+        }, 500);
+
+        // Countdown display
+        const startTs = performance.now();
+        const tick = () => {
+          if(!this.running || !this.awaiting) return;
+          const elapsed = performance.now() - startTs;
+          const left = clamp((responseWindowMs - elapsed) / 1000, 0, 2);
+          $("nbackCountdown").textContent = left.toFixed(1);
+          this.countdownTimer = later(tick, 60);
+        };
+        tick();
+
+        // Timeout if no response
+        this.responseTimer = later(() => {
+          if(!this.running) return;
+          if(this.awaiting && !this.responded){
+            this.timeouts += 1;
+            this.applyScoring(null); // no response
+            this.showFeedback(false, "Zu langsam");
+            this.endTrialAdvance();
+          }
+        }, responseWindowMs);
+      },
+
+      answer(userSaysMatch){
+        if(!this.running || !this.awaiting || this.responded) return;
+
+        this.responded = true;
+
+        // RT
+        const rt = performance.now() - this.trialStartTs;
+        this.rts.push(rt);
+
+        // scoring
+        const correct = this.applyScoring(!!userSaysMatch);
+
+        this.showFeedback(correct, correct ? "Richtig" : "Falsch");
+        this.endTrialAdvance();
+      },
+
+      applyScoring(userSaysMatch){
+        // userSaysMatch: true/false or null (timeout)
+        const i = this.trialIndex;
+        const truth = this.seq[i].isMatch;
+
+        let correct = false;
+        if(userSaysMatch === null){
+          // Timeout -> treat as wrong, count as miss if match, else (no response on no-match) treat as false alarm? (didn't press)
+          // Didaktisch sinnvoll: "keine Antwort" = falsch, aber als Miss oder als CR? We'll treat as "verpasst" when match, else "falsch" (neither match nor no-match)
+          if(truth) this.miss += 1;
+          else this.fa += 1; // counts as incorrect on non-match
+          correct = false;
+        } else {
+          if(userSaysMatch && truth){ this.hits += 1; correct = true; }
+          else if(userSaysMatch && !truth){ this.fa += 1; correct = false; }
+          else if(!userSaysMatch && truth){ this.miss += 1; correct = false; }
+          else if(!userSaysMatch && !truth){ this.cr += 1; correct = true; }
+        }
+
+        if(correct) this.correct += 1;
+        return correct;
+      },
+
+      showFeedback(isCorrect, text){
+        const el = $("nbackFeedback");
+        el.textContent = text;
+        el.className = "feedback " + (isCorrect ? "ok" : "bad");
+      },
+
+      endTrialAdvance(){
+        // stop awaiting and timers
+        this.awaiting = false;
+        this.setButtonsEnabled(false);
+
+        // clear the response timer and countdown timer (but keep global list safe)
+        // We'll rely on clearAllTimers when stopping; for now just let them end naturally.
+
+        // Advance after short feedback, but keep overall trial length stable-ish:
+        // Since response window is fixed to 2000ms, we simply schedule next trial after 350ms.
+        later(() => {
+          if(!this.running) return;
+          this.trialIndex += 1;
+          $("nbackStimulus").textContent = "–";
+          this.runTrial();
+        }, 350);
+      },
+
+      finish(){
+        this.running = false;
+        window.removeEventListener("keydown", this.keyHandler);
+        this.setButtonsEnabled(false);
+
+        const acc = (this.correct / this.totalTrials) * 100;
+        const avgRt = this.rts.length ? mean(this.rts) : null;
+
+        $("nbackSummary").innerHTML =
+          `Du hast <b>${this.correct}</b> von <b>${this.totalTrials}</b> Trials korrekt beantwortet (${acc.toFixed(0)}%). ` +
+          `Das ist ein kurzer Eindruck deiner momentanen Belastungsgrenze bei <b>${this.N}-Back</b>.`;
+
+        $("nbackHits").textContent = String(this.hits);
+        $("nbackFA").textContent = String(this.fa);
+        $("nbackMiss").textContent = String(this.miss);
+        $("nbackCR").textContent = String(this.cr);
+        $("nbackRT").textContent = avgRt ? (Math.round(avgRt) + " ms") : "–";
+
+        setStatus("N-Back fertig");
+        showScreen("screenNBackResult");
+      }
+    };
+
+    // ============================================================
+    // SPERLING
+    // ============================================================
+    const sperling = {
+      running:false,
+      mode:"partial", // partial or full
+      totalTrials:9,
+      trialIndex:0,
+      showMs:50,
+      delays:[0,250,500],
+      beepOn:true,
+
+      // current trial
+      gridLetters:[], // length 12
+      cuedRow:0, // 0..2
+      delayMs:0,
+      accepting:false,
+
+      // stats
+      partialByDelay: new Map(), // delay -> {corrects:[], trials:n}
+      fullCorrects: [],
+
+      audioCtx:null,
+
+      init(){
+        $("startSperling").addEventListener("click", () => this.start());
+        $("retrySperling").addEventListener("click", () => {
+          setStatus("Sperling bereit");
+          showScreen("screenSperlingIntro");
+        });
+        $("sperlingSubmit").addEventListener("click", () => this.submit());
+        $("sperlingInput").addEventListener("keydown", (e) => {
+          if(e.key === "Enter"){ e.preventDefault(); this.submit(); }
+        });
+      },
+
+      stop(){
+        this.running = false;
+        this.accepting = false;
+      },
+
+      resetStats(){
+        this.partialByDelay = new Map();
+        this.delays.forEach(d => this.partialByDelay.set(d, { corrects: [] }));
+        this.fullCorrects = [];
+      },
+
+      ensureAudio(){
+        try{
+          if(!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }catch(_e){
+          this.audioCtx = null;
+        }
+      },
+
+      beepForRow(row){
+        if(!this.beepOn) return;
+        this.ensureAudio();
+        if(!this.audioCtx) return;
+        const ctx = this.audioCtx;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "sine";
+        const freqs = [440, 660, 880]; // top/mid/bottom
+        o.frequency.value = freqs[row] || 660;
+        g.gain.value = 0.0001;
+        o.connect(g);
+        g.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+        o.start(now);
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.12, now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+        o.stop(now + 0.09);
+      },
+
+      buildGrid(){
+        // pick 12 consonants, allow repeats (fine), but avoid too many duplicates by re-picking once
+        const letters = [];
+        for(let i=0; i<12; i++){
+          letters.push(choice(CONSONANTS));
+        }
+        this.gridLetters = letters;
+      },
+
+      renderGrid(visible){
+        const grid = $("sperlingGrid");
+        grid.innerHTML = "";
+        for(let i=0; i<12; i++){
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.textContent = visible ? this.gridLetters[i] : "";
+          grid.appendChild(cell);
+        }
+      },
+
+      setCue(text, arrow){
+        $("sperlingCueText").textContent = text;
+        $("sperlingCueArrow").textContent = arrow || "";
+      },
+
+      start(){
+        stopAll();
+        clearAllTimers();
+
+        this.beepOn = $("sperlingBeep").checked;
+        this.mode = $("sperlingMode").value;
+        $("sperlingModeLabel").textContent = (this.mode === "partial") ? "Teilbericht" : "Vollbericht";
+
+        this.totalTrials = (this.mode === "partial") ? 9 : 6;
+        $("sperlingTotal").textContent = String(this.totalTrials);
+
+        this.resetStats();
+        this.trialIndex = 0;
+        this.running = true;
+
+        $("sperlingFeedback").textContent = "";
+        $("sperlingFeedback").className = "feedback";
+        $("sperlingInput").value = "";
+        $("sperlingInput").disabled = true;
+        $("sperlingSubmit").disabled = true;
+        $("sperlingDelayLabel").textContent = "–";
+        $("sperlingPrompt").textContent = "Warte auf Anzeige…";
+        this.setCue("Hinweis: –", "");
+
+        setStatus("Sperling läuft");
+        showScreen("screenSperlingTask");
+
+        this.runTrial();
+      },
+
+      runTrial(){
+        if(!this.running) return;
+
+        const t = this.trialIndex;
+        if(t >= this.totalTrials){
+          this.finish();
+          return;
+        }
+
+        $("sperlingTrialNo").textContent = String(t+1);
+        $("sperlingFeedback").textContent = "";
+        $("sperlingFeedback").className = "feedback";
+        $("sperlingInput").value = "";
+        $("sperlingInput").disabled = true;
+        $("sperlingSubmit").disabled = true;
+        this.accepting = false;
+
+        this.buildGrid();
+        this.renderGrid(true);
+
+        this.setCue("Hinweis: –", "");
+        $("sperlingPrompt").textContent = "Merken…";
+
+        // determine delay & cue
+        if(this.mode === "partial"){
+          this.delayMs = this.delays[t % this.delays.length];
+          // randomize row
+          this.cuedRow = Math.floor(Math.random()*3);
+          $("sperlingDelayLabel").textContent = String(this.delayMs);
+        } else {
+          this.delayMs = 0;
+          this.cuedRow = -1;
+          $("sperlingDelayLabel").textContent = "0";
+        }
+
+        // Hide after showMs
+        later(() => {
+          if(!this.running) return;
+          this.renderGrid(false);
+          $("sperlingPrompt").textContent = "…";
+        }, this.showMs);
+
+        // After delay, show cue and allow input
+        later(() => {
+          if(!this.running) return;
+
+          if(this.mode === "partial"){
+            const rowNames = ["Obere Reihe", "Mittlere Reihe", "Untere Reihe"];
+            const arrows = ["↑", "→", "↓"]; // simple visual cue
+            this.setCue("Hinweis: " + rowNames[this.cuedRow], arrows[this.cuedRow]);
+            this.beepForRow(this.cuedRow);
+            $("sperlingPrompt").textContent = "Gib 4 Buchstaben ein (links → rechts).";
+            $("sperlingInput").placeholder = "z.B. KTRS (4 Buchstaben)";
+          } else {
+            this.setCue("Hinweis: Vollbericht", "↕");
+            if(this.beepOn) this.beepForRow(1);
+            $("sperlingPrompt").textContent = "Gib alle 12 Buchstaben ein (Reihe für Reihe).";
+            $("sperlingInput").placeholder = "z.B. KTRS MNPQ ... (12 Buchstaben, ohne Leerzeichen)";
+          }
+
+          $("sperlingInput").disabled = false;
+          $("sperlingSubmit").disabled = false;
+          this.accepting = true;
+
+          // focus input
+          later(() => { try{ $("sperlingInput").focus(); }catch(_e){} }, 10);
+        }, this.showMs + this.delayMs);
+      },
+
+      normalizeInput(str){
+        return (str || "")
+          .toUpperCase()
+          .replace(/[^A-Z]/g, ""); // keep letters only
+      },
+
+      correctForRow(row){
+        const start = row * 4;
+        return this.gridLetters.slice(start, start + 4).join("");
+      },
+
+      correctFull(){
+        // row-wise
+        return this.gridLetters.join("");
+      },
+
+      scorePositionwise(given, correct){
+        const L = Math.min(given.length, correct.length);
+        let c = 0;
+        for(let i=0; i<L; i++){
+          if(given[i] === correct[i]) c++;
+        }
+        // missing letters count as incorrect; extra letters ignored
+        return c;
+      },
+
+      submit(){
+        if(!this.running || !this.accepting) return;
+
+        this.accepting = false;
+        $("sperlingInput").disabled = true;
+        $("sperlingSubmit").disabled = true;
+
+        const given = this.normalizeInput($("sperlingInput").value);
+
+        let correctStr = "";
+        let max = 0;
+        let correctCount = 0;
+
+        if(this.mode === "partial"){
+          correctStr = this.correctForRow(this.cuedRow);
+          max = 4;
+          correctCount = this.scorePositionwise(given, correctStr);
+
+          const bucket = this.partialByDelay.get(this.delayMs);
+          bucket.corrects.push(correctCount);
+
+          // feedback
+          const el = $("sperlingFeedback");
+          el.className = "feedback";
+          const msg = `Korrekt: ${correctCount} / ${max}  (Soll: ${correctStr})`;
+          el.textContent = msg;
+          el.classList.add(correctCount >= 3 ? "ok" : "bad");
+        } else {
+          correctStr = this.correctFull();
+          max = 12;
+          correctCount = this.scorePositionwise(given, correctStr);
+
+          this.fullCorrects.push(correctCount);
+
+          const el = $("sperlingFeedback");
+          el.className = "feedback";
+          el.textContent = `Korrekt: ${correctCount} / ${max}`;
+          el.classList.add(correctCount >= 7 ? "ok" : "bad");
+        }
+
+        // short pause then next trial
+        later(() => {
+          if(!this.running) return;
+          this.trialIndex += 1;
+          this.runTrial();
+        }, 600);
+      },
+
+      finish(){
+        this.running = false;
+        $("sperlingInput").disabled = true;
+        $("sperlingSubmit").disabled = true;
+
+        // Show correct result panel depending on mode
+        $("sperlingResultPartial").classList.toggle("hidden", this.mode !== "partial");
+        $("sperlingResultFull").classList.toggle("hidden", this.mode !== "full");
+
+        if(this.mode === "partial"){
+          const rows = [];
+          let overall = [];
+
+          this.delays.forEach(d => {
+            const arr = this.partialByDelay.get(d).corrects;
+            const avg = arr.length ? mean(arr) : 0;
+            overall = overall.concat(arr);
+
+            rows.push({
+              delay: d,
+              avg: avg,
+              trials: arr.length
+            });
+          });
+
+          const overallAvg = overall.length ? mean(overall) : 0;
+
+          $("sperlingSummary").innerHTML =
+            `Du hast im Teilbericht im Schnitt <b>${overallAvg.toFixed(2)}</b> von <b>4</b> Buchstaben korrekt erinnert. ` +
+            `Vergleiche die Delays: Mit zunehmender Verzögerung wird es typischerweise schwieriger.`;
+
+          const tbody = $("sperlingDelayTable");
+          tbody.innerHTML = "";
+          rows.forEach(r => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${r.delay} ms</td><td>${r.avg.toFixed(2)}</td><td>${r.trials}</td>`;
+            tbody.appendChild(tr);
+          });
+
+        } else {
+          const avg = this.fullCorrects.length ? mean(this.fullCorrects) : 0;
+          const best = this.fullCorrects.length ? Math.max(...this.fullCorrects) : 0;
+
+          $("sperlingSummary").innerHTML =
+            `Im Vollbericht hast du im Schnitt <b>${avg.toFixed(2)}</b> von <b>12</b> korrekt berichtet. ` +
+            `Das zeigt den Unterschied zwischen kurz verfügbarer Information und dem, was tatsächlich berichtet werden kann.`;
+
+          $("sperlingFullAvg").textContent = avg.toFixed(2) + " / 12";
+          $("sperlingFullBest").textContent = best + " / 12";
+        }
+
+        setStatus("Sperling fertig");
+        showScreen("screenSperlingResult");
+      }
+    };
+
+    // Init
+    nback.init();
+    sperling.init();
+
+    // Start on home
+    showScreen("screenHome");
+    setStatus("Bereit");
+  </script>
+</body>
+</html>
