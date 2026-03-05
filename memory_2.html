@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wortaufgabe</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --text:#f2f5ff;
+      --muted:#b9c2e6;
+      --accent:#7aa2ff;
+      --accent2:#3dd6d0;
+      --danger:#ff6b6b;
+      --warn:#ffd166;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --pad: clamp(14px, 2.6vw, 22px);
+      --fs: clamp(18px, 2.2vw, 22px);
+      --fsSmall: clamp(14px, 2.0vw, 16px);
+      --fsBig: clamp(26px, 4.2vw, 46px);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(122,162,255,.18), transparent 55%),
+        radial-gradient(900px 700px at 80% 20%, rgba(61,214,208,.14), transparent 55%),
+        radial-gradient(1100px 900px at 50% 90%, rgba(255,255,255,.06), transparent 50%),
+        var(--bg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: clamp(14px, 3vw, 28px);
+    }
+    .app{ width:min(920px, 100%); }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: var(--pad);
+      overflow:hidden;
+    }
+    header{
+      display:flex; gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom: 12px;
+    }
+    .title{
+      font-size: clamp(20px, 3vw, 30px);
+      font-weight: 760;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .sub{
+      font-size: var(--fsSmall);
+      color: var(--muted);
+      margin: 6px 0 0 0;
+      line-height:1.35;
+      max-width: 70ch;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-size: var(--fsSmall);
+      white-space:nowrap;
+    }
+    .content{ display:flex; flex-direction:column; gap: 14px; margin-top: 10px; }
+    .panel{
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding: clamp(14px, 2.2vw, 18px);
+    }
+    p, label{
+      font-size: var(--fs);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .muted{ color: var(--muted); font-size: var(--fsSmall); }
+    .row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+    .btnRow{ display:flex; gap: 10px; flex-wrap:wrap; align-items:center; }
+    button{
+      appearance:none;
+      border:none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-weight: 700;
+      font-size: var(--fs);
+      cursor:pointer;
+      color: #071020;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 10px 18px rgba(0,0,0,.24);
+      transition: transform .08s ease, filter .12s ease, opacity .12s ease;
+      min-width: min(240px, 100%);
+    }
+    button:hover{ filter: brightness(1.04); }
+    button:active{ transform: translateY(1px) scale(.995); }
+    button.secondary{
+      background: rgba(255,255,255,.10);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:none;
+    }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .wordStage{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height: clamp(180px, 34vh, 320px);
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .word{
+      font-size: var(--fsBig);
+      font-weight: 860;
+      letter-spacing: .4px;
+      text-align:center;
+      padding: 10px 12px;
+      user-select:none;
+    }
+    .bar{
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width .25s ease;
+    }
+    .bigNumber{
+      font-size: clamp(40px, 7vw, 76px);
+      font-weight: 860;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+    .checkboxGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 14px;
+    }
+    @media (max-width: 620px){
+      .checkboxGrid{ grid-template-columns: 1fr; }
+      button{ width:100%; }
+    }
+    .checkItem{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+    }
+    input[type="checkbox"]{
+      width: 22px;
+      height: 22px;
+      margin-top: 2px;
+      accent-color: var(--accent2);
+      flex: 0 0 auto;
+    }
+
+    /* Feedback (nur Fehler) */
+    .errorBlock{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      border-radius: 14px;
+      padding: 14px 14px;
+    }
+    .errorTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .badge{
+      font-size: var(--fsSmall);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      white-space:nowrap;
+    }
+    .badge.danger{ background: rgba(255,107,107,.14); color: var(--danger); }
+    .badge.warn{ background: rgba(255,209,102,.14); color: var(--warn); }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+    }
+    .chip{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      font-size: var(--fsSmall);
+    }
+
+    .smallPrint{
+      font-size: var(--fsSmall);
+      color: var(--muted);
+      line-height: 1.35;
+      margin-top:14px;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card" aria-live="polite">
+      <header>
+        <div>
+          <h1 class="title">Wortaufgabe</h1>
+          <p class="sub">Bitte folgen Sie den Anweisungen. Es gibt keine Rücksprünge zwischen den Phasen.</p>
+        </div>
+        <div class="pill" id="phasePill">Phase 1/4</div>
+      </header>
+
+      <div class="content" id="view"></div>
+
+      <p class="smallPrint">
+        Hinweis: Diese Seite speichert keine Daten extern.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      "use strict";
+
+      // ------------------------------------------------------------
+      // Stimuli (kritische Wörter kommen NICHT in der Liste vor)
+      // ------------------------------------------------------------
+      const clusterSuess = [
+        "Zucker","Bonbon","Schokolade","Honig","Kuchen","Keks","Sahne","Sirup","Torte","Konfitüre","Vanille","Karamell"
+      ];
+
+      const clusterBuero = [
+        "Schreibtisch","Stuhl","Computer","Drucker","Papier","Ordner","Akte","Telefon","Tastatur","Monitor","Kalender","Notiz"
+      ];
+
+      // Gesamtliste (randomisiert), aber ohne die kritischen Wörter
+      const studyWords = shuffle([...clusterSuess, ...clusterBuero]); // 24 Wörter
+
+      // Recognition-Test:
+      // - 10 tatsächlich gezeigte Wörter (zufällig aus studyWords)
+      // - 10 offensichtliche Foils
+      // - plus 2 kritische Wörter
+      const criticalLures = ["süss","Büro"];
+      const obviousFoils = ["Giraffe","Vulkan","Banane","Satellit","Schneesturm","Geige","Piraten","Aquarium","Traktor","Pyramide"];
+
+      const DISTRACTION_SECONDS = 30;
+
+      // Präsentations-Timing (sichtbar + kurze Leerphase)
+      const WORD_ON_MS  = 1200;
+      const WORD_OFF_MS = 350;
+
+      // ------------------------------------------------------------
+      // State
+      // ------------------------------------------------------------
+      let phase = 1;
+      let presentationTimer = null;
+      let wordIndex = 0;
+
+      let distractionTimer = null;
+      let distractionRemaining = DISTRACTION_SECONDS;
+
+      let testWords = [];
+      let selections = new Set();
+
+      // Wichtig: Welche "gezeigten" Wörter wurden in Phase 4 tatsächlich angeboten?
+      let offeredStudiedWords = []; // die 10 ausgewählten studyWords, die im Test vorkommen
+
+      const view = document.getElementById("view");
+      const phasePill = document.getElementById("phasePill");
+
+      function setPhase(n, total=4){
+        phase = n;
+        phasePill.textContent = `Phase ${phase}/${total}`;
+      }
+
+      function clearView(){ view.innerHTML = ""; }
+
+      function el(tag, attrs={}, children=[]){
+        const node = document.createElement(tag);
+        for (const [k,v] of Object.entries(attrs)){
+          if (k === "class") node.className = v;
+          else if (k === "html") node.innerHTML = v;
+          else if (k.startsWith("on") && typeof v === "function") {
+            node.addEventListener(k.slice(2).toLowerCase(), v);
+          } else {
+            node.setAttribute(k, v);
+          }
+        }
+        for (const c of (Array.isArray(children) ? children : [children])){
+          if (c == null) continue;
+          node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+        }
+        return node;
+      }
+
+      function shuffle(arr){
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--){
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function sample(arr, n){
+        const a = shuffle(arr);
+        return a.slice(0, Math.min(n, a.length));
+      }
+
+      const mkChips = (arr) => {
+        if (!arr.length) return el("p", {class:"muted"}, "Keine.");
+        const wrap = el("div", {class:"chips"});
+        arr.forEach(w => wrap.appendChild(el("span", {class:"chip"}, w)));
+        return wrap;
+      };
+
+      // ------------------------------------------------------------
+      // Render
+      // ------------------------------------------------------------
+      function renderPhase1(){
+        setPhase(1, 4);
+        clearView();
+
+        view.appendChild(el("div", {class:"panel"}, [
+          el("p", {}, "Sie sehen gleich eine Reihe von Wörtern. Versuchen Sie, sich so viele wie möglich zu merken."),
+          el("p", {class:"muted", style:"margin-top:10px;"}, "Die Wörter erscheinen immer nur einzeln.")
+        ]));
+
+        view.appendChild(el("div", {class:"panel"}, [
+          el("div", {class:"row"}, [
+            el("p", {class:"muted"}, "Wenn bereit, starten Sie die Aufgabe."),
+            el("div", {class:"btnRow"}, [
+              el("button", { onClick: () => { renderPhase2(); startPresentation(); } }, "Start")
+            ])
+          ])
+        ]));
+      }
+
+      function renderPhase2(){
+        setPhase(2, 4);
+        clearView();
+
+        const stage = el("div", {class:"wordStage"}, [
+          el("div", {class:"word", id:"wordText"}, "—")
+        ]);
+
+        const progressPanel = el("div", {class:"panel"}, [
+          el("div", {class:"row"}, [
+            el("p", {}, "Fortschritt"),
+            el("p", {class:"muted", id:"counterText"}, `0 von ${studyWords.length}`)
+          ]),
+          el("div", {class:"bar", role:"progressbar", "aria-valuemin":"0", "aria-valuemax": String(studyWords.length), "aria-valuenow":"0"}, [
+            el("div", {id:"barFill", style:"width:0%;"})
+          ]),
+          el("p", {class:"muted", style:"margin-top:10px;"}, "Bitte nur merken, nicht notieren.")
+        ]);
+
+        view.appendChild(stage);
+        view.appendChild(progressPanel);
+      }
+
+      function updatePresentationProgress(done){
+        const counter = document.getElementById("counterText");
+        const fill = document.getElementById("barFill");
+        const bar = fill?.parentElement;
+
+        if (counter) counter.textContent = `${done} von ${studyWords.length}`;
+        const pct = Math.round((done / studyWords.length) * 100);
+        if (fill) fill.style.width = `${pct}%`;
+        if (bar) bar.setAttribute("aria-valuenow", String(done));
+      }
+
+      function renderPhase3(){
+        setPhase(3, 4);
+        clearView();
+        distractionRemaining = DISTRACTION_SECONDS;
+
+        view.appendChild(el("div", {class:"panel"}, [
+          el("p", {}, "Zählen Sie laut rückwärts von 100 in Dreierschritten: 100, 97, 94..."),
+          el("p", {class:"muted", style:"margin-top:8px;"}, "Bitte fahren Sie fort, bis der Countdown endet.")
+        ]));
+
+        view.appendChild(el("div", {class:"panel"}, [
+          el("div", {class:"row"}, [
+            el("p", {}, "Countdown"),
+            el("span", {class:"pill", id:"timerPill"}, `${distractionRemaining}s`)
+          ]),
+          el("div", {class:"bigNumber", id:"timerBig", style:"margin-top:10px;"}, String(distractionRemaining))
+        ]));
+
+        startDistractionTimer();
+      }
+
+      function renderPhase4(){
+        setPhase(4, 4);
+        clearView();
+
+        // Wichtig: Nur diese tatsächlich gezeigten Wörter "zählen" als mögliche Misses,
+        // weil nur sie in der Auswahl standen.
+        offeredStudiedWords = sample(studyWords, 10);
+
+        // Testliste: 10 angebotene "studied" + 10 Foils + 2 kritische Wörter
+        testWords = shuffle([...offeredStudiedWords, ...obviousFoils, ...criticalLures]);
+        selections = new Set();
+
+        view.appendChild(el("div", {class:"panel"}, [
+          el("p", {}, "Welche der folgenden Wörter kamen in der Aufgabe vor? Kreuzen Sie alle an, die vorkamen.")
+        ]));
+
+        const gridPanel = el("div", {class:"panel"}, [
+          el("div", {class:"checkboxGrid", id:"grid"})
+        ]);
+
+        const grid = gridPanel.querySelector("#grid");
+        testWords.forEach(word => {
+          const id = "cb_" + word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "_");
+          const cb = el("input", {
+            type:"checkbox",
+            id,
+            onChange: (e) => {
+              if (e.target.checked) selections.add(word);
+              else selections.delete(word);
+            }
+          });
+          grid.appendChild(el("div", {class:"checkItem"}, [
+            cb,
+            el("label", {for:id}, word)
+          ]));
+        });
+
+        view.appendChild(gridPanel);
+
+        view.appendChild(el("div", {class:"panel"}, [
+          el("div", {class:"row"}, [
+            el("p", {class:"muted"}, "Wenn Sie fertig sind, klicken Sie auf „Fertig“."),
+            el("div", {class:"btnRow"}, [
+              el("button", { onClick: () => renderFeedbackErrorsOnly() }, "Fertig")
+            ])
+          ])
+        ]));
+      }
+
+      function renderFeedbackErrorsOnly(){
+        clearView();
+
+        const offeredStudiedSet = new Set(offeredStudiedWords);
+        const selectedSet = new Set(selections);
+
+        // Fehler 1: angekreuzt, aber NICHT in den angebotenen "studied" Wörtern (also Foils + kritische Wörter)
+        const falseAlarms = [...selectedSet].filter(w => !offeredStudiedSet.has(w));
+
+        // Fehler 2: NICHT angekreuzt, obwohl angeboten & tatsächlich aus der Lernliste (nur die 10 angebotenen zählen)
+        const misses = offeredStudiedWords.filter(w => !selectedSet.has(w));
+
+        view.appendChild(el("div", {class:"panel"}, [
+          el("p", {}, "Rückmeldung (nur Fehler)"),
+          el("p", {class:"muted", style:"margin-top:10px;"},
+            "Unten sehen Sie nur die Wörter, bei denen Ihre Auswahl nicht mit der vorherigen Wortliste übereinstimmt.")
+        ]));
+
+        view.appendChild(el("div", {class:"errorBlock"}, [
+          el("div", {class:"errorTitle"}, [
+            el("p", {}, "Fälschlicherweise angekreuzt"),
+            el("span", {class:"badge danger"}, `${falseAlarms.length}`)
+          ]),
+          el("p", {class:"muted", style:"margin-bottom:10px;"},
+            "Diese Wörter wurden ausgewählt, kamen aber in der Wortliste nicht vor."),
+          mkChips(falseAlarms)
+        ]));
+
+        view.appendChild(el("div", {class:"errorBlock"}, [
+          el("div", {class:"errorTitle"}, [
+            el("p", {}, "Übersehen"),
+            el("span", {class:"badge warn"}, `${misses.length}`)
+          ]),
+          el("p", {class:"muted", style:"margin-bottom:10px;"},
+            "Diese Wörter kamen in der Wortliste vor und standen zur Auswahl, wurden aber nicht ausgewählt."),
+          mkChips(misses)
+        ]));
+
+        view.appendChild(el("div", {class:"panel"}, [
+          el("p", {}, "Vielen Dank. Bitte warten Sie auf die nächsten Anweisungen."),
+          el("p", {class:"muted", style:"margin-top:10px;"}, "Sie können das Gerät nun beiseite legen.")
+        ]));
+
+        view.appendChild(el("div", {class:"panel"}, [
+          el("div", {class:"row"}, [
+            el("p", {class:"muted"}, "Optional (für die Betreuungsperson): Aufgabe neu starten."),
+            el("div", {class:"btnRow"}, [
+              el("button", {class:"secondary", onClick: restart}, "Neustart")
+            ])
+          ])
+        ]));
+      }
+
+      // ------------------------------------------------------------
+      // Logic
+      // ------------------------------------------------------------
+      function startPresentation(){
+        stopAllTimers();
+        wordIndex = 0;
+        updatePresentationProgress(0);
+
+        const wordEl = () => document.getElementById("wordText");
+
+        const showNext = () => {
+          const wEl = wordEl();
+          if (!wEl) return;
+
+          if (wordIndex >= studyWords.length){
+            stopPresentationTimer();
+            renderPhase3();
+            return;
+          }
+
+          wEl.textContent = studyWords[wordIndex];
+          updatePresentationProgress(wordIndex + 1);
+
+          setTimeout(() => {
+            const wEl2 = wordEl();
+            if (wEl2) wEl2.textContent = "";
+          }, WORD_ON_MS);
+
+          wordIndex++;
+        };
+
+        showNext();
+        presentationTimer = setInterval(showNext, WORD_ON_MS + WORD_OFF_MS);
+      }
+
+      function stopPresentationTimer(){
+        if (presentationTimer){
+          clearInterval(presentationTimer);
+          presentationTimer = null;
+        }
+      }
+
+      function startDistractionTimer(){
+        stopDistractionTimer();
+
+        const tick = () => {
+          const pill = document.getElementById("timerPill");
+          const big = document.getElementById("timerBig");
+          if (pill) pill.textContent = `${distractionRemaining}s`;
+          if (big) big.textContent = String(distractionRemaining);
+
+          if (distractionRemaining <= 0){
+            stopDistractionTimer();
+            renderPhase4();
+            return;
+          }
+          distractionRemaining -= 1;
+        };
+
+        tick();
+        distractionTimer = setInterval(tick, 1000);
+      }
+
+      function stopDistractionTimer(){
+        if (distractionTimer){
+          clearInterval(distractionTimer);
+          distractionTimer = null;
+        }
+      }
+
+      function stopAllTimers(){
+        stopPresentationTimer();
+        stopDistractionTimer();
+      }
+
+      function restart(){
+        stopAllTimers();
+        wordIndex = 0;
+        distractionRemaining = DISTRACTION_SECONDS;
+        selections = new Set();
+        testWords = [];
+        offeredStudiedWords = [];
+        renderPhase1();
+      }
+
+      // ------------------------------------------------------------
+      // Init
+      // ------------------------------------------------------------
+      renderPhase1();
+
+    })();
+  </script>
+</body>
+</html>
