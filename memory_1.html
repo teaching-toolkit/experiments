@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Gedächtnisexperimente – N-Back & Sperling</title>
+  <title>Experimente – N-Back & Sperling</title>
   <style>
     :root{
       --bg:#ffffff;
@@ -113,7 +113,6 @@
     }
     .hidden{ display:none !important; }
 
-    /* Experiment UI */
     .title2{
       margin: 0 0 8px;
       font-size: 20px;
@@ -137,6 +136,8 @@
       align-items:center;
       justify-content:center;
       background:#ffffff;
+      position: relative;
+      overflow:hidden;
     }
     .stimulus{
       font-size: clamp(64px, 10vw, 120px);
@@ -161,6 +162,36 @@
       font-size: 14px;
       margin-top: 8px;
       flex-wrap:wrap;
+    }
+
+    /* Mid-screen message overlay */
+    .overlay{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(255,255,255,.92);
+      padding: 14px;
+    }
+    .overlayCard{
+      width: min(640px, 92vw);
+      border:1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background:#ffffff;
+      box-shadow: var(--shadow);
+      text-align:center;
+    }
+    .overlayTitle{
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+    .overlayText{
+      margin:0 0 12px;
+      color: var(--muted);
+      font-size: 15px;
     }
 
     /* Sperling grid */
@@ -231,7 +262,6 @@
       box-shadow: 0 0 0 3px rgba(37,99,235,.15);
     }
 
-    /* Result simple table */
     table{
       width:100%;
       border-collapse: collapse;
@@ -252,13 +282,11 @@
       font-size: 14px;
     }
 
-    /* Small screens */
     @media (max-width: 420px){
       .btn{ width:100%; }
       .stimulusBox{ height: 210px; }
     }
 
-    /* Reduce motion */
     @media (prefers-reduced-motion: reduce){
       .btn{ transition:none; }
     }
@@ -266,11 +294,11 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="card" role="application" aria-label="Gedächtnisexperimente">
+    <div class="card" role="application" aria-label="Experimente">
       <header>
         <div>
-          <h1>Gedächtnisexperimente</h1>
-          <p class="sub">Zwei kurze Aufgaben (N-Back &amp; Sperling) zum direkten Erleben von Arbeits- und ikonischem Gedächtnis.</p>
+          <h1>Experimente</h1>
+          <p class="sub">Zwei kurze Aufgaben. Keine Daten werden gespeichert.</p>
         </div>
         <div class="row">
           <span class="pill" id="statusPill">Bereit</span>
@@ -281,41 +309,41 @@
       <section id="screenHome">
         <div class="hr"></div>
         <p class="instr">
-          Wähle ein Experiment. Keine Daten werden gespeichert. (Dauer: ca. 2–3 Minuten pro Experiment)
+          Wähle ein Experiment. Der Link funktioniert direkt im Browser.
         </p>
         <div class="row">
-          <button class="btn" id="goNBack">N-Back Test (Arbeitsgedächtnis)</button>
-          <button class="btn secondary" id="goSperling">Sperling Task (Ikonisches Gedächtnis)</button>
+          <button class="btn" id="goNBack">N-Back</button>
+          <button class="btn secondary" id="goSperling">Sperling</button>
         </div>
         <p class="note">
-          Tipp: Im N-Back kannst du auch mit der Tastatur antworten (<b>J</b>=Match, <b>N</b>=No Match).
+          Tipp: In der N-Back-Aufgabe kannst du mit <b>Y</b> (Match) und <b>N</b> (No Match) antworten – oder die Buttons klicken.
         </p>
       </section>
 
       <!-- N-BACK INTRO -->
       <section id="screenNBackIntro" class="hidden">
         <div class="hr"></div>
-        <h2 class="title2">N-Back Test</h2>
+        <h2 class="title2">N-Back</h2>
         <p class="instr">
-          Klicke <b>Match</b>, wenn der aktuelle Buchstabe mit dem von <b>N Positionen zurück</b> übereinstimmt. Sonst <b>No Match</b>.
+          Drücke <b>Match</b>, wenn der aktuelle Buchstabe mit dem von <b>N Positionen zurück</b> übereinstimmt. Sonst <b>No Match</b>.
         </p>
         <div class="row" style="margin-bottom:10px;">
           <span class="pill"><b>Level</b>:
             <select id="nbackLevel" aria-label="N-Back Level" style="font-size:16px; margin-left:8px; padding:6px 8px; border-radius:10px; border:1px solid var(--border);">
-              <option value="1">1-Back (leicht)</option>
-              <option value="2" selected>2-Back (mittel)</option>
-              <option value="3">3-Back (schwer)</option>
+              <option value="1">1-Back</option>
+              <option value="2" selected>2-Back</option>
+              <option value="3">3-Back</option>
             </select>
           </span>
-          <span class="pill"><b>Trials</b>: 24</span>
-          <span class="pill"><b>Timing</b>: 500ms Stimulus · 2000ms pro Trial</span>
+          <span class="pill"><b>Ablauf</b>: 15 Übung + 15 Trials</span>
+          <span class="pill"><b>Tasten</b>: Y = Match · N = No Match</span>
         </div>
 
         <div class="row">
           <button class="btn" id="startNBack">Start</button>
           <button class="btn secondary" id="backHome1">Zurück</button>
         </div>
-        <p class="note">Hinweis: Fehlantworten sind normal – es geht ums Erleben der Belastungsgrenze.</p>
+        <p class="note">Hinweis: Es geht ums Erleben der Aufgabe – Fehler sind normal.</p>
       </section>
 
       <!-- N-BACK TASK -->
@@ -323,27 +351,42 @@
         <div class="hr"></div>
 
         <div class="progressRow">
-          <div><b>N-Back</b> · Level: <span id="nbackLevelLabel">2</span></div>
-          <div>Trial <span id="nbackTrialNo">1</span> / <span id="nbackTotal">24</span></div>
+          <div>
+            <b>N-Back</b> · Level: <span id="nbackLevelLabel">2</span> · Phase: <span id="nbackPhaseLabel">Übung</span>
+          </div>
+          <div>Trial <span id="nbackTrialNo">1</span> / <span id="nbackTotal">15</span></div>
         </div>
 
         <div class="stimulusBox" aria-label="Stimulusbereich">
           <div class="stimulus" id="nbackStimulus" aria-live="polite">–</div>
+
+          <!-- overlay between phases -->
+          <div class="overlay hidden" id="nbackOverlay">
+            <div class="overlayCard">
+              <div class="overlayTitle">Übung fertig</div>
+              <p class="overlayText">
+                Jetzt folgen nochmals <b>15 Trials</b>. Die Buchstaben bleiben <b>länger</b> sichtbar. Weiter mit „Start“.
+              </p>
+              <div class="row" style="justify-content:center;">
+                <button class="btn" id="nbackContinue">Start</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="center">
           <div class="feedback" id="nbackFeedback" aria-live="polite"></div>
-          <div class="muted" style="font-size:14px;">Tastatur: <b>J</b>=Match · <b>N</b>=No Match</div>
+          <div class="muted" style="font-size:14px;">Tastatur: <b>Y</b>=Match · <b>N</b>=No Match</div>
         </div>
 
         <div class="row" style="justify-content:center; margin-top: 10px;">
-          <button class="btn" id="btnMatch">Match (J)</button>
+          <button class="btn" id="btnMatch">Match (Y)</button>
           <button class="btn secondary" id="btnNoMatch">No Match (N)</button>
         </div>
 
         <div class="progressRow">
-          <div>Antwortfenster: <span id="nbackCountdown">2.0</span>s</div>
-          <div class="muted">Wenn du nicht antwortest: zählt als falsch.</div>
+          <div id="nbackTimingLabel">Übung: Stimulus bleibt bis zur Antwort</div>
+          <div class="muted" id="nbackHintLabel">In der Übung gibt es kein Zeitlimit.</div>
         </div>
       </section>
 
@@ -363,10 +406,6 @@
           </tbody>
         </table>
 
-        <p class="note">
-          Interpretation (kurz): Wenn Level ↑, steigt die Beanspruchung des Arbeitsgedächtnisses – Fehler werden wahrscheinlicher.
-        </p>
-
         <div class="row">
           <button class="btn" id="retryNBack">Nochmal</button>
           <button class="btn secondary" id="toHomeFromNBack">Anderes Experiment</button>
@@ -376,14 +415,14 @@
       <!-- SPERLING INTRO -->
       <section id="screenSperlingIntro" class="hidden">
         <div class="hr"></div>
-        <h2 class="title2">Sperling Task</h2>
+        <h2 class="title2">Sperling</h2>
         <p class="instr">
-          Ein Buchstabengitter wird sehr kurz gezeigt. Danach zeigt ein Hinweis, <b>welche Reihe</b> du eingeben sollst (Teilbericht).
+          Ein Buchstabengitter wird kurz gezeigt. Danach zeigt ein Hinweis, <b>welche Reihe</b> du eingeben sollst (Standard) – oder du gibst alles ein (Vergleich).
         </p>
 
         <div class="row" style="margin-bottom:10px;">
           <span class="pill"><b>Grid</b>: 3×4 (Konsonanten)</span>
-          <span class="pill"><b>Anzeige</b>: 50ms</span>
+          <span class="pill"><b>Anzeige</b>: 200ms</span>
           <span class="pill"><b>Delays</b>: 0 / 250 / 500ms</span>
         </div>
 
@@ -426,9 +465,7 @@
         </div>
 
         <div class="gridWrap" style="margin-top:10px;">
-          <div class="grid" id="sperlingGrid" aria-label="Buchstabengitter" aria-live="polite">
-            <!-- cells inserted -->
-          </div>
+          <div class="grid" id="sperlingGrid" aria-label="Buchstabengitter" aria-live="polite"></div>
 
           <div class="rowCue" id="sperlingCueBox" aria-label="Hinweis" aria-live="polite">
             <div class="cueText" id="sperlingCueText">Hinweis: –</div>
@@ -466,9 +503,6 @@
             </thead>
             <tbody id="sperlingDelayTable"></tbody>
           </table>
-          <p class="note">
-            Typischer Effekt: Je länger der Delay, desto weniger bleibt aus dem ikonischen Gedächtnis verfügbar.
-          </p>
         </div>
 
         <div id="sperlingResultFull" class="hidden">
@@ -478,9 +512,6 @@
               <tr><th>Beste Runde</th><td id="sperlingFullBest">–</td></tr>
             </tbody>
           </table>
-          <p class="note">
-            Vollbericht ist meist deutlich schwieriger – obwohl kurzzeitig “mehr” verfügbar war, geht viel verloren, bevor alles berichtet ist.
-          </p>
         </div>
 
         <div class="row">
@@ -513,18 +544,8 @@
     }
 
     function choice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-
     function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
-
-    function mean(nums){
-      if(!nums.length) return 0;
-      return nums.reduce((s,x)=>s+x,0)/nums.length;
-    }
-
-    function formatMs(ms){
-      if(ms == null) return "–";
-      return Math.round(ms) + " ms";
-    }
+    function mean(nums){ return nums.length ? nums.reduce((s,x)=>s+x,0)/nums.length : 0; }
 
     // Consonants (avoid vowels to reduce accidental word formation)
     const CONSONANTS = "BCDFGHJKLMNPQRSTVWXYZ".split("");
@@ -574,20 +595,26 @@
     const nback = {
       running:false,
       N:2,
-      totalTrials:24,
+
+      // Two phases: practice (15 trials, stimulus until response), then main (15 trials, longer display)
+      phase:"practice", // "practice" | "main"
+      practiceTrials: 15,
+      mainTrials: 15,
       trialIndex:0,
       seq:[],
       awaiting:false,
       responded:false,
       trialStartTs:0,
       responseTimer:null,
-      countdownTimer:null,
+
+      // timing
+      practice: { stimulusVisibleMs: null, responseWindowMs: null }, // null = until response
+      main:     { stimulusVisibleMs: 1200, responseWindowMs: 3200 }, // longer than before
 
       // stats
       hits:0, fa:0, miss:0, cr:0,
       correct:0,
       rts:[],
-      timeouts:0,
 
       init(){
         $("startNBack").addEventListener("click", () => this.start());
@@ -599,9 +626,11 @@
         $("btnMatch").addEventListener("click", () => this.answer(true));
         $("btnNoMatch").addEventListener("click", () => this.answer(false));
 
+        $("nbackContinue").addEventListener("click", () => this.startMainPhase());
+
         this.keyHandler = (e) => {
           if(!this.running) return;
-          if(e.key === "j" || e.key === "J"){ e.preventDefault(); this.answer(true); }
+          if(e.key === "y" || e.key === "Y"){ e.preventDefault(); this.answer(true); }
           if(e.key === "n" || e.key === "N"){ e.preventDefault(); this.answer(false); }
         };
       },
@@ -610,20 +639,20 @@
         this.running = false;
         this.awaiting = false;
         this.responded = false;
+        $("nbackOverlay").classList.add("hidden");
       },
 
       resetStats(){
         this.hits = this.fa = this.miss = this.cr = 0;
         this.correct = 0;
         this.rts = [];
-        this.timeouts = 0;
       },
 
-      buildSequence(){
+      buildSequence(totalTrials){
         const N = this.N;
-        const trials = this.totalTrials;
+        const trials = totalTrials;
 
-        // Decide match trials (approx 30%) but only possible from index >= N
+        // Decide match trials (~30%), only possible from i >= N
         const desiredMatches = Math.round((trials - N) * 0.30);
         const matchPositions = new Set();
         while(matchPositions.size < desiredMatches){
@@ -632,16 +661,13 @@
         }
 
         const seq = new Array(trials);
-        // Fill first N with random letters
         for(let i=0; i<N; i++){
           seq[i] = choice(CONSONANTS);
         }
-        // Fill rest with controlled matches/non-matches
         for(let i=N; i<trials; i++){
           if(matchPositions.has(i)){
             seq[i] = seq[i-N];
           } else {
-            // choose a letter that is not equal to seq[i-N] to avoid accidental match
             let letter = choice(CONSONANTS);
             while(letter === seq[i-N]){
               letter = choice(CONSONANTS);
@@ -650,7 +676,6 @@
           }
         }
 
-        // Create trial objects with ground truth match
         this.seq = seq.map((stim, i) => ({
           stim,
           isMatch: i >= N ? (stim === seq[i-N]) : false
@@ -663,23 +688,56 @@
 
         this.N = parseInt($("nbackLevel").value, 10);
         $("nbackLevelLabel").textContent = String(this.N);
-        $("nbackTotal").textContent = String(this.totalTrials);
 
         this.resetStats();
-        this.buildSequence();
+
+        this.phase = "practice";
         this.trialIndex = 0;
         this.running = true;
+
+        this.buildSequence(this.practiceTrials);
 
         $("nbackStimulus").textContent = "–";
         $("nbackFeedback").textContent = "";
         $("nbackFeedback").className = "feedback";
-        $("nbackCountdown").textContent = "2.0";
+
+        $("nbackPhaseLabel").textContent = "Übung";
         $("nbackTrialNo").textContent = "1";
+        $("nbackTotal").textContent = String(this.practiceTrials);
+        $("nbackTimingLabel").textContent = "Übung: Stimulus bleibt bis zur Antwort";
+        $("nbackHintLabel").textContent = "In der Übung gibt es kein Zeitlimit.";
+
+        $("nbackOverlay").classList.add("hidden");
+        this.setButtonsEnabled(true);
 
         setStatus("N-Back läuft");
         showScreen("screenNBackTask");
-
         window.addEventListener("keydown", this.keyHandler);
+
+        this.runTrial();
+      },
+
+      startMainPhase(){
+        if(!this.running) return;
+        clearAllTimers();
+
+        this.phase = "main";
+        this.trialIndex = 0;
+
+        this.buildSequence(this.mainTrials);
+
+        $("nbackPhaseLabel").textContent = "Trials";
+        $("nbackTrialNo").textContent = "1";
+        $("nbackTotal").textContent = String(this.mainTrials);
+        $("nbackTimingLabel").textContent = "Trials: Stimulus länger sichtbar (Zeitfenster läuft)";
+        $("nbackHintLabel").textContent = "Wenn du nicht antwortest: zählt als falsch.";
+
+        $("nbackFeedback").textContent = "";
+        $("nbackFeedback").className = "feedback";
+        $("nbackStimulus").textContent = "–";
+
+        $("nbackOverlay").classList.add("hidden");
+        this.setButtonsEnabled(true);
 
         this.runTrial();
       },
@@ -689,18 +747,37 @@
         $("btnNoMatch").disabled = !enabled;
       },
 
+      currentPhaseTrials(){
+        return this.phase === "practice" ? this.practiceTrials : this.mainTrials;
+      },
+
+      currentTiming(){
+        return this.phase === "practice" ? this.practice : this.main;
+      },
+
       runTrial(){
         if(!this.running) return;
 
+        const total = this.currentPhaseTrials();
         const i = this.trialIndex;
-        if(i >= this.totalTrials){
+
+        if(i >= total){
+          if(this.phase === "practice"){
+            // show overlay transition to main
+            this.awaiting = false;
+            this.setButtonsEnabled(false);
+            $("nbackStimulus").textContent = "";
+            $("nbackFeedback").textContent = "";
+            $("nbackOverlay").classList.remove("hidden");
+            return;
+          }
+          // main finished
           this.finish();
           return;
         }
 
         $("nbackTrialNo").textContent = String(i+1);
 
-        // Present stimulus
         const trial = this.seq[i];
         this.responded = false;
         this.awaiting = true;
@@ -708,35 +785,34 @@
 
         $("nbackFeedback").textContent = "";
         $("nbackFeedback").className = "feedback";
-
         $("nbackStimulus").textContent = trial.stim;
 
         this.trialStartTs = performance.now();
-        const responseWindowMs = 2000;
 
-        // Hide stimulus after 500ms
-        later(() => {
-          if(!this.running) return;
-          $("nbackStimulus").textContent = "";
-        }, 500);
+        const timing = this.currentTiming();
+        const responseWindowMs = timing.responseWindowMs;
 
-        // Countdown display
-        const startTs = performance.now();
-        const tick = () => {
-          if(!this.running || !this.awaiting) return;
-          const elapsed = performance.now() - startTs;
-          const left = clamp((responseWindowMs - elapsed) / 1000, 0, 2);
-          $("nbackCountdown").textContent = left.toFixed(1);
-          this.countdownTimer = later(tick, 60);
-        };
-        tick();
+        // If phase has a fixed stimulus visibility, hide after that.
+        if(typeof timing.stimulusVisibleMs === "number"){
+          later(() => {
+            if(!this.running) return;
+            // Only hide if still in same trial awaiting; otherwise leave it alone
+            if(this.awaiting && !this.responded){
+              $("nbackStimulus").textContent = "";
+            }
+          }, timing.stimulusVisibleMs);
+        }
 
-        // Timeout if no response
+        // In practice: no timeout
+        if(responseWindowMs == null){
+          return;
+        }
+
+        // Timeout in main: treat as wrong
         this.responseTimer = later(() => {
           if(!this.running) return;
           if(this.awaiting && !this.responded){
-            this.timeouts += 1;
-            this.applyScoring(null); // no response
+            this.applyScoring(null);
             this.showFeedback(false, "Zu langsam");
             this.endTrialAdvance();
           }
@@ -748,28 +824,24 @@
 
         this.responded = true;
 
-        // RT
         const rt = performance.now() - this.trialStartTs;
         this.rts.push(rt);
 
-        // scoring
         const correct = this.applyScoring(!!userSaysMatch);
-
         this.showFeedback(correct, correct ? "Richtig" : "Falsch");
         this.endTrialAdvance();
       },
 
       applyScoring(userSaysMatch){
-        // userSaysMatch: true/false or null (timeout)
         const i = this.trialIndex;
         const truth = this.seq[i].isMatch;
 
         let correct = false;
+
         if(userSaysMatch === null){
-          // Timeout -> treat as wrong, count as miss if match, else (no response on no-match) treat as false alarm? (didn't press)
-          // Didaktisch sinnvoll: "keine Antwort" = falsch, aber als Miss oder als CR? We'll treat as "verpasst" when match, else "falsch" (neither match nor no-match)
+          // timeout (main only): incorrect
           if(truth) this.miss += 1;
-          else this.fa += 1; // counts as incorrect on non-match
+          else this.fa += 1;
           correct = false;
         } else {
           if(userSaysMatch && truth){ this.hits += 1; correct = true; }
@@ -789,15 +861,10 @@
       },
 
       endTrialAdvance(){
-        // stop awaiting and timers
         this.awaiting = false;
         this.setButtonsEnabled(false);
 
-        // clear the response timer and countdown timer (but keep global list safe)
-        // We'll rely on clearAllTimers when stopping; for now just let them end naturally.
-
-        // Advance after short feedback, but keep overall trial length stable-ish:
-        // Since response window is fixed to 2000ms, we simply schedule next trial after 350ms.
+        // brief feedback pause then next trial
         later(() => {
           if(!this.running) return;
           this.trialIndex += 1;
@@ -811,12 +878,14 @@
         window.removeEventListener("keydown", this.keyHandler);
         this.setButtonsEnabled(false);
 
-        const acc = (this.correct / this.totalTrials) * 100;
+        const totalMain = this.mainTrials; // result refers to main phase count? We'll report overall from both phases to keep it simple.
+        const totalAll = this.practiceTrials + this.mainTrials;
+
+        const acc = (this.correct / totalAll) * 100;
         const avgRt = this.rts.length ? mean(this.rts) : null;
 
         $("nbackSummary").innerHTML =
-          `Du hast <b>${this.correct}</b> von <b>${this.totalTrials}</b> Trials korrekt beantwortet (${acc.toFixed(0)}%). ` +
-          `Das ist ein kurzer Eindruck deiner momentanen Belastungsgrenze bei <b>${this.N}-Back</b>.`;
+          `Du hast insgesamt <b>${this.correct}</b> von <b>${totalAll}</b> Trials korrekt beantwortet (${acc.toFixed(0)}%).`;
 
         $("nbackHits").textContent = String(this.hits);
         $("nbackFA").textContent = String(this.fa);
@@ -834,21 +903,20 @@
     // ============================================================
     const sperling = {
       running:false,
-      mode:"partial", // partial or full
+      mode:"partial",
       totalTrials:9,
+
       trialIndex:0,
-      showMs:50,
+      showMs:500,          // was 50ms, now >= 4x longer
       delays:[0,250,500],
       beepOn:true,
 
-      // current trial
-      gridLetters:[], // length 12
-      cuedRow:0, // 0..2
+      gridLetters:[],
+      cuedRow:0,
       delayMs:0,
       accepting:false,
 
-      // stats
-      partialByDelay: new Map(), // delay -> {corrects:[], trials:n}
+      partialByDelay: new Map(),
       fullCorrects: [],
 
       audioCtx:null,
@@ -892,7 +960,7 @@
         const o = ctx.createOscillator();
         const g = ctx.createGain();
         o.type = "sine";
-        const freqs = [440, 660, 880]; // top/mid/bottom
+        const freqs = [440, 660, 880];
         o.frequency.value = freqs[row] || 660;
         g.gain.value = 0.0001;
         o.connect(g);
@@ -907,11 +975,8 @@
       },
 
       buildGrid(){
-        // pick 12 consonants, allow repeats (fine), but avoid too many duplicates by re-picking once
         const letters = [];
-        for(let i=0; i<12; i++){
-          letters.push(choice(CONSONANTS));
-        }
+        for(let i=0; i<12; i++) letters.push(choice(CONSONANTS));
         this.gridLetters = letters;
       },
 
@@ -984,10 +1049,8 @@
         this.setCue("Hinweis: –", "");
         $("sperlingPrompt").textContent = "Merken…";
 
-        // determine delay & cue
         if(this.mode === "partial"){
           this.delayMs = this.delays[t % this.delays.length];
-          // randomize row
           this.cuedRow = Math.floor(Math.random()*3);
           $("sperlingDelayLabel").textContent = String(this.delayMs);
         } else {
@@ -996,7 +1059,7 @@
           $("sperlingDelayLabel").textContent = "0";
         }
 
-        // Hide after showMs
+        // Hide after showMs (now 200ms)
         later(() => {
           if(!this.running) return;
           this.renderGrid(false);
@@ -1009,7 +1072,7 @@
 
           if(this.mode === "partial"){
             const rowNames = ["Obere Reihe", "Mittlere Reihe", "Untere Reihe"];
-            const arrows = ["↑", "→", "↓"]; // simple visual cue
+            const arrows = ["↑", "→", "↓"];
             this.setCue("Hinweis: " + rowNames[this.cuedRow], arrows[this.cuedRow]);
             this.beepForRow(this.cuedRow);
             $("sperlingPrompt").textContent = "Gib 4 Buchstaben ein (links → rechts).";
@@ -1018,22 +1081,19 @@
             this.setCue("Hinweis: Vollbericht", "↕");
             if(this.beepOn) this.beepForRow(1);
             $("sperlingPrompt").textContent = "Gib alle 12 Buchstaben ein (Reihe für Reihe).";
-            $("sperlingInput").placeholder = "z.B. KTRS MNPQ ... (12 Buchstaben, ohne Leerzeichen)";
+            $("sperlingInput").placeholder = "z.B. KTRSMNPQ... (12 Buchstaben, ohne Leerzeichen)";
           }
 
           $("sperlingInput").disabled = false;
           $("sperlingSubmit").disabled = false;
           this.accepting = true;
 
-          // focus input
           later(() => { try{ $("sperlingInput").focus(); }catch(_e){} }, 10);
         }, this.showMs + this.delayMs);
       },
 
       normalizeInput(str){
-        return (str || "")
-          .toUpperCase()
-          .replace(/[^A-Z]/g, ""); // keep letters only
+        return (str || "").toUpperCase().replace(/[^A-Z]/g, "");
       },
 
       correctForRow(row){
@@ -1042,7 +1102,6 @@
       },
 
       correctFull(){
-        // row-wise
         return this.gridLetters.join("");
       },
 
@@ -1052,7 +1111,6 @@
         for(let i=0; i<L; i++){
           if(given[i] === correct[i]) c++;
         }
-        // missing letters count as incorrect; extra letters ignored
         return c;
       },
 
@@ -1073,21 +1131,16 @@
           correctStr = this.correctForRow(this.cuedRow);
           max = 4;
           correctCount = this.scorePositionwise(given, correctStr);
+          this.partialByDelay.get(this.delayMs).corrects.push(correctCount);
 
-          const bucket = this.partialByDelay.get(this.delayMs);
-          bucket.corrects.push(correctCount);
-
-          // feedback
           const el = $("sperlingFeedback");
           el.className = "feedback";
-          const msg = `Korrekt: ${correctCount} / ${max}  (Soll: ${correctStr})`;
-          el.textContent = msg;
+          el.textContent = `Korrekt: ${correctCount} / ${max}  (Soll: ${correctStr})`;
           el.classList.add(correctCount >= 3 ? "ok" : "bad");
         } else {
           correctStr = this.correctFull();
           max = 12;
           correctCount = this.scorePositionwise(given, correctStr);
-
           this.fullCorrects.push(correctCount);
 
           const el = $("sperlingFeedback");
@@ -1096,7 +1149,6 @@
           el.classList.add(correctCount >= 7 ? "ok" : "bad");
         }
 
-        // short pause then next trial
         later(() => {
           if(!this.running) return;
           this.trialIndex += 1;
@@ -1109,7 +1161,6 @@
         $("sperlingInput").disabled = true;
         $("sperlingSubmit").disabled = true;
 
-        // Show correct result panel depending on mode
         $("sperlingResultPartial").classList.toggle("hidden", this.mode !== "partial");
         $("sperlingResultFull").classList.toggle("hidden", this.mode !== "full");
 
@@ -1121,19 +1172,13 @@
             const arr = this.partialByDelay.get(d).corrects;
             const avg = arr.length ? mean(arr) : 0;
             overall = overall.concat(arr);
-
-            rows.push({
-              delay: d,
-              avg: avg,
-              trials: arr.length
-            });
+            rows.push({ delay: d, avg: avg, trials: arr.length });
           });
 
           const overallAvg = overall.length ? mean(overall) : 0;
 
           $("sperlingSummary").innerHTML =
-            `Du hast im Teilbericht im Schnitt <b>${overallAvg.toFixed(2)}</b> von <b>4</b> Buchstaben korrekt erinnert. ` +
-            `Vergleiche die Delays: Mit zunehmender Verzögerung wird es typischerweise schwieriger.`;
+            `Du hast im Teilbericht im Schnitt <b>${overallAvg.toFixed(2)}</b> von <b>4</b> Buchstaben korrekt eingegeben.`;
 
           const tbody = $("sperlingDelayTable");
           tbody.innerHTML = "";
@@ -1148,8 +1193,7 @@
           const best = this.fullCorrects.length ? Math.max(...this.fullCorrects) : 0;
 
           $("sperlingSummary").innerHTML =
-            `Im Vollbericht hast du im Schnitt <b>${avg.toFixed(2)}</b> von <b>12</b> korrekt berichtet. ` +
-            `Das zeigt den Unterschied zwischen kurz verfügbarer Information und dem, was tatsächlich berichtet werden kann.`;
+            `Im Vollbericht hast du im Schnitt <b>${avg.toFixed(2)}</b> von <b>12</b> korrekt eingegeben.`;
 
           $("sperlingFullAvg").textContent = avg.toFixed(2) + " / 12";
           $("sperlingFullBest").textContent = best + " / 12";
