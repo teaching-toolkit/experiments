@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Spot the Bait — YouTube Savvy Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --cream: #FAF7F2;
+    --paper: #F3EFE6;
+    --ink: #1C1B18;
+    --ink-light: #4A4740;
+    --gold: #C8891A;
+    --red: #C0392B;
+    --green: #27704A;
+    --amber: #D4820A;
+    --border: #DDD8CF;
+    --shadow: rgba(28,27,24,0.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 60px;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    width: 100%;
+    max-width: 720px;
+    text-align: center;
+    padding: 36px 0 20px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 32px;
+  }
+  .site-header h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .site-header .subtitle {
+    font-size: 1.1rem;
+    color: var(--ink-light);
+    margin-top: 8px;
+    font-weight: 300;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-bar-wrap {
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 20px;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--ink-light);
+    margin-bottom: 6px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--ink);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── CARD ── */
+  .card {
+    width: 100%;
+    max-width: 720px;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 4px 24px var(--shadow);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  /* ── THUMBNAIL ── */
+  .yt-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    user-select: none;
+  }
+  .yt-thumb .thumb-emoji {
+    font-size: clamp(3.5rem, 10vw, 5.5rem);
+    z-index: 2;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+    line-height: 1;
+  }
+  .yt-thumb .thumb-overlay-text {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 10px 14px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(0.85rem, 2.5vw, 1.15rem);
+    z-index: 3;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  }
+  .yt-thumb .duration-badge {
+    position: absolute;
+    bottom: 8px; right: 10px;
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    font-size: 0.8rem;
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    z-index: 4;
+  }
+  .yt-thumb .play-btn {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 52px; height: 52px;
+    background: rgba(0,0,0,0.72);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2;
+    opacity: 0.85;
+  }
+  .yt-thumb .play-btn::after {
+    content: '';
+    border: solid transparent;
+    border-width: 10px 0 10px 18px;
+    border-left-color: #fff;
+    margin-left: 4px;
+  }
+
+  /* ── META ── */
+  .yt-meta {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px 16px;
+    align-items: flex-start;
+  }
+  .channel-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    color: #fff;
+  }
+  .yt-text { flex: 1; }
+  .yt-title {
+    font-size: clamp(1rem, 2.8vw, 1.15rem);
+    font-weight: 600;
+    line-height: 1.35;
+    margin-bottom: 5px;
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .yt-channel-row {
+    font-size: 0.88rem;
+    color: var(--ink-light);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+  .verified-tick {
+    color: var(--ink);
+    font-size: 0.75rem;
+  }
+
+  /* ── SLIDER SECTION ── */
+  .slider-section {
+    width: 100%;
+    max-width: 720px;
+    background: var(--paper);
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 28px 28px 24px;
+    margin-bottom: 20px;
+  }
+  .slider-prompt {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+  }
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .label-legit { color: var(--green); }
+  .label-bait  { color: var(--red);   }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 14px;
+    border-radius: 7px;
+    background: linear-gradient(to right, #27704A, #C8891A, #C0392B);
+    outline: none;
+    cursor: pointer;
+    margin-bottom: 16px;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--ink);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    cursor: grab;
+    transition: border-color 0.2s;
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--ink);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    cursor: grab;
+  }
+  .slider-value-display {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink-light);
+    margin-bottom: 20px;
+    min-height: 1.4em;
+    font-style: italic;
+  }
+  .btn-rate {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-rate:hover { background: #333; }
+  .btn-rate:active { transform: scale(0.98); }
+  .btn-rate:disabled { background: var(--border); color: var(--ink-light); cursor: default; }
+
+  /* ── FEEDBACK ── */
+  .feedback-panel {
+    width: 100%;
+    max-width: 720px;
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.35s ease;
+  }
+  .feedback-panel.visible { display: flex; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .verdict-banner {
+    border-radius: 4px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  .verdict-banner.correct   { background: #E8F5EE; border: 1.5px solid var(--green); color: var(--green); }
+  .verdict-banner.partial   { background: #FFF8E6; border: 1.5px solid var(--amber); color: var(--amber); }
+  .verdict-banner.missed    { background: #FDECEA; border: 1.5px solid var(--red);   color: var(--red);   }
+  .verdict-icon { font-size: 1.8rem; flex-shrink: 0; }
+
+  .feedback-body {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 22px 24px;
+  }
+  .technique-badge {
+    display: inline-block;
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    margin-bottom: 12px;
+  }
+  .feedback-explanation {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .feedback-tip {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--paper);
+    border-left: 3px solid var(--gold);
+    padding: 12px 14px;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.97rem;
+    line-height: 1.55;
+  }
+  .tip-label { font-weight: 700; flex-shrink: 0; }
+
+  .btn-next {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-next:hover { background: var(--amber); }
+  .btn-next:active { transform: scale(0.98); }
+
+  /* ── INTRO ── */
+  #intro-screen {
+    width: 100%; max-width: 720px;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 36px 40px;
+    box-shadow: 0 4px 24px var(--shadow);
+  }
+  #intro-screen h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    margin-bottom: 16px;
+  }
+  #intro-screen p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 14px;
+    color: var(--ink);
+  }
+  .category-pills {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0;
+  }
+  .pill {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .btn-start {
+    display: block; width: 100%;
+    margin-top: 24px; padding: 18px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem; font-weight: 700;
+    background: var(--ink); color: #fff;
+    border: none; border-radius: 4px;
+    cursor: pointer; letter-spacing: 0.05em;
+    transition: background 0.2s;
+  }
+  .btn-start:hover { background: #333; }
+
+  /* ── RESULTS ── */
+  #results-screen {
+    display: none;
+    width: 100%; max-width: 720px;
+    flex-direction: column;
+    align-items: center;
+  }
+  .results-box {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 40px;
+    text-align: center;
+    width: 100%;
+    box-shadow: 0 4px 24px var(--shadow);
+    margin-bottom: 24px;
+  }
+  .results-score {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 10vw, 5rem);
+    font-weight: 900;
+    line-height: 1;
+    margin: 16px 0 8px;
+  }
+  .results-label {
+    font-size: 1.1rem;
+    color: var(--ink-light);
+    margin-bottom: 24px;
+  }
+  .results-breakdown {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+  .breakdown-cell {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 10px;
+  }
+  .breakdown-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    display: block;
+  }
+  .breakdown-lbl {
+    font-size: 0.82rem;
+    color: var(--ink-light);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .results-message {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--ink-light);
+    max-width: 500px;
+    margin: 0 auto 24px;
+  }
+  .btn-restart {
+    padding: 16px 40px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; font-weight: 700;
+    background: var(--ink); color: #fff;
+    border: none; border-radius: 4px;
+    cursor: pointer; letter-spacing: 0.05em;
+    transition: background 0.2s;
+  }
+  .btn-restart:hover { background: #333; }
+
+  /* ── HIDDEN ── */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <h1>🎯 Spot the Bait</h1>
+  <div class="subtitle">A YouTube savvy quiz — learn to tell the real from the clickbait</div>
+</div>
+
+<!-- INTRO SCREEN -->
+<div id="intro-screen">
+  <h2>Before you start…</h2>
+  <p>You're about to see <strong>50 YouTube video previews</strong> — the thumbnail image, the title, the channel name, and the view count. For each one, you'll rate how trustworthy it looks using a slider.</p>
+  <p>Some videos are obvious clickbait designed to scare, trick, or mislead you. Some are more subtle. And some are perfectly fine videos that <em>might look</em> suspicious at first glance. After each rating, you'll get instant feedback and a short explanation.</p>
+  <p><strong>What you'll learn to spot:</strong></p>
+  <div class="category-pills">
+    <span class="pill">🚨 Fear-bait</span>
+    <span class="pill">💰 Financial scams</span>
+    <span class="pill">🤖 Impersonation channels</span>
+    <span class="pill">🎁 Fake giveaways</span>
+    <span class="pill">💊 Miracle cure claims</span>
+    <span class="pill">😡 Rage-bait</span>
+    <span class="pill">🔮 Conspiracy hooks</span>
+    <span class="pill">⏰ Fake urgency</span>
+    <span class="pill">✅ Genuine content</span>
+  </div>
+  <p style="color:var(--ink-light); font-size:0.95rem;">There are no trick questions — the answers are always explained. Take your time, trust your instincts, and don't worry about getting things wrong. That's how you learn.</p>
+  <button class="btn-start" onclick="startQuiz()">Start the Quiz →</button>
+</div>
+
+<!-- QUIZ AREA (hidden initially) -->
+<div id="quiz-area" class="hidden" style="width:100%;max-width:720px;display:flex;flex-direction:column;align-items:center;">
+
+  <div class="progress-bar-wrap">
+    <div class="progress-meta">
+      <span id="progress-text">Video 1 of 50</span>
+      <span id="score-text">Score: 0</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <!-- YouTube Card -->
+  <div class="card" id="yt-card">
+    <div class="yt-thumb" id="yt-thumb">
+      <div class="play-btn"></div>
+      <div class="thumb-emoji" id="thumb-emoji">🎬</div>
+      <div class="thumb-overlay-text" id="thumb-overlay-text"></div>
+      <div class="duration-badge" id="duration-badge">0:00</div>
+    </div>
+    <div class="yt-meta">
+      <div class="channel-avatar" id="channel-avatar">A</div>
+      <div class="yt-text">
+        <div class="yt-title" id="yt-title">Video Title</div>
+        <div class="yt-channel-row">
+          <span id="channel-name">Channel Name</span>
+          <span id="verified-tick" class="verified-tick"></span>
+          <span>·</span>
+          <span id="view-count">0 views</span>
+          <span>·</span>
+          <span id="video-age">0 days ago</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slider -->
+  <div class="slider-section">
+    <div class="slider-prompt">How trustworthy does this look?</div>
+    <div class="slider-labels">
+      <span class="label-legit">👍 Looks Legit</span>
+      <span class="label-bait">🚩 Clear Bait</span>
+    </div>
+    <input type="range" min="0" max="100" value="50" id="trust-slider" oninput="updateSliderDisplay()"/>
+    <div class="slider-value-display" id="slider-display">Move the slider then click Rate It</div>
+    <button class="btn-rate" id="btn-rate" onclick="rateVideo()">Rate This Video</button>
+  </div>
+
+  <!-- Feedback -->
+  <div class="feedback-panel" id="feedback-panel">
+    <div class="verdict-banner" id="verdict-banner">
+      <span class="verdict-icon" id="verdict-icon">✅</span>
+      <span id="verdict-text">Good call!</span>
+    </div>
+    <div class="feedback-body">
+      <div class="technique-badge" id="technique-badge">Technique</div>
+      <div class="feedback-explanation" id="feedback-explanation">Explanation goes here.</div>
+      <div class="feedback-tip">
+        <span class="tip-label">💡 Tip:</span>
+        <span id="feedback-tip">Tip goes here.</span>
+      </div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="nextVideo()">Next Video →</button>
+  </div>
+
+</div>
+
+<!-- RESULTS SCREEN -->
+<div id="results-screen">
+  <div class="results-box">
+    <div style="font-size:3.5rem">🎓</div>
+    <div class="results-score" id="results-score">0/50</div>
+    <div class="results-label">videos correctly assessed</div>
+    <div class="results-breakdown">
+      <div class="breakdown-cell">
+        <span class="breakdown-num" id="res-obvious">0/20</span>
+        <span class="breakdown-lbl">Obvious bait spotted</span>
+      </div>
+      <div class="breakdown-cell">
+        <span class="breakdown-num" id="res-subtle">0/10</span>
+        <span class="breakdown-lbl">Subtle bait caught</span>
+      </div>
+      <div class="breakdown-cell">
+        <span class="breakdown-num" id="res-legit">0/20</span>
+        <span class="breakdown-lbl">Legit videos trusted</span>
+      </div>
+    </div>
+    <div class="results-message" id="results-message">Well done!</div>
+    <button class="btn-restart" onclick="restartQuiz()">Play Again</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA: 50 videos
+// correctAnswer: 0=totally legit, 100=total bait
+// userIsCorrect if:
+//   legit   → slider ≤ 40  (trusts it)
+//   subtle  → slider ≥ 45  (any suspicion)
+//   obvious → slider ≥ 60  (marks as bait)
+// ─────────────────────────────────────────────
+const videos = [
+
+// ══ OBVIOUS BAIT ══ (20)
+
+{ type:"obvious", title:"DOCTORS DON'T WANT YOU TO KNOW THIS!! 🚨 The Secret They've Been Hiding",
+  channel:"Health Truth Exposed", subs:"847K subscribers", views:"2.4M views", age:"3 days ago", duration:"12:47",
+  bg:"linear-gradient(135deg,#2d0000,#7a0000)", emoji:"🚨", overlay:"THEY'RE HIDING THIS", overlayColor:"#ff4444",
+  avatarBg:"#7a0000", avatarLetter:"H",
+  technique:"Fear-Bait + False Suppression Claim",
+  explanation:"\"Doctors don't want you to know\" is one of the most used fear-bait formulas online. Real medical discoveries are reported by medical journals, hospitals, and reputable news — not by channels claiming a secret conspiracy. The ALL CAPS, shock emoji, and vague 'they' create alarm without any specific, verifiable claim.",
+  tip:"Ask yourself: what exactly are 'they' hiding? If the title gives no real information — only alarm — it's bait. Genuine health content names specific conditions and treatments."
+},
+
+{ type:"obvious", title:"BREAKING: Stock Market CRASH Coming THIS WEEK — Get Your Money Out NOW!!!",
+  channel:"Financial Freedom Alert", subs:"1.2M subscribers", views:"890K views", age:"1 day ago", duration:"9:22",
+  bg:"linear-gradient(135deg,#0a0a1a,#001a5a)", emoji:"📉", overlay:"CRASH INCOMING", overlayColor:"#ff2200",
+  avatarBg:"#001a5a", avatarLetter:"F",
+  technique:"Financial Doom-Bait",
+  explanation:"Predicting an imminent market crash 'this week' is a permanent feature of bait finance channels. They make this claim constantly — and eventually any dip makes them look right. These channels often sell courses, subscriptions, or investments. Real financial warnings come from regulated institutions, not YouTube channels.",
+  tip:"Be very wary of any channel predicting specific financial disasters in the near future. Check who the channel is — do they have verifiable credentials? Real financial advice comes from licensed professionals."
+},
+
+{ type:"obvious", title:"Elon Musk REVEALS Secret Investment (Watch Before It Gets DELETED) 💰💰",
+  channel:"Wealth Secrets Daily", subs:"234K subscribers", views:"1.1M views", age:"5 hours ago", duration:"14:03",
+  bg:"linear-gradient(135deg,#0d1a0d,#1a3a1a)", emoji:"💰", overlay:"WATCH BEFORE DELETED", overlayColor:"#ffcc00",
+  avatarBg:"#1a3a1a", avatarLetter:"W",
+  technique:"Fake Celebrity Endorsement + False Urgency",
+  explanation:"Elon Musk's name and face appear in countless scam videos. Legitimate investments by public figures are not revealed first on YouTube. 'Watch before deleted' is fake urgency — if the platform were really removing it, you wouldn't be seeing it in your feed. This pattern is often tied to cryptocurrency scams.",
+  tip:"Famous people's names in video titles are almost always fake endorsements. Search the celebrity's name plus the topic in a search engine — if it's real news, reputable sources will cover it."
+},
+
+{ type:"obvious", title:"iPhone 16 Pro MAX FREE GIVEAWAY — Must Watch ALL THE WAY to the End!! 🎁🎁🎁",
+  channel:"Tech Prizes Official", subs:"12K subscribers", views:"445K views", age:"2 days ago", duration:"18:44",
+  bg:"linear-gradient(135deg,#1a0a2e,#3d1a7a)", emoji:"🎁", overlay:"FREE GIVEAWAY", overlayColor:"#ff88ff",
+  avatarBg:"#3d1a7a", avatarLetter:"T",
+  technique:"Scam Giveaway",
+  explanation:"Legitimate giveaways from real companies (Apple, Google, etc.) are never run through small, unknown YouTube channels. Requiring you to watch to the end is a tactic to inflate watch time for ad revenue. These videos often then ask for personal information or payment to 'claim your prize' — which is a scam.",
+  tip:"Real giveaways are run through official brand websites, not YouTube channels with few subscribers. If it asks for personal details or a 'shipping fee' to claim a prize, it's a scam."
+},
+
+{ type:"obvious", title:"I CURED My Type 2 Diabetes in 3 DAYS — Doctors Are STUNNED (Not Clickbait)",
+  channel:"Natural Healing Today", subs:"520K subscribers", views:"3.2M views", age:"1 week ago", duration:"16:55",
+  bg:"linear-gradient(135deg,#0a1a0a,#004d00)", emoji:"💊", overlay:"CURE THEY WON'T TELL YOU", overlayColor:"#00ff88",
+  avatarBg:"#004d00", avatarLetter:"N",
+  technique:"Miracle Cure Claim",
+  explanation:"No one cures Type 2 diabetes in 3 days. Adding 'not clickbait' in the title is a red flag — genuine content doesn't need to announce its own honesty. 'Doctors are stunned' is a classic formula. These videos often promote supplements or courses, and can seriously harm people who stop their real medical treatment.",
+  tip:"Any video claiming a quick cure for a serious chronic condition is dangerous misinformation. Consult your actual doctor. Real health breakthroughs appear in peer-reviewed journals and major news sources first."
+},
+
+{ type:"obvious", title:"WARNING 🚨 Dangerous Criminals Now Moving Into Quiet Neighbourhoods — SHARE THIS",
+  channel:"Community Safety Watch", subs:"89K subscribers", views:"780K views", age:"4 days ago", duration:"8:31",
+  bg:"linear-gradient(135deg,#1a0000,#550000)", emoji:"🚔", overlay:"DANGER IN YOUR AREA", overlayColor:"#ff3300",
+  avatarBg:"#550000", avatarLetter:"C",
+  technique:"Fear-Bait / Moral Panic",
+  explanation:"Vague warnings about undefined criminals in unspecified neighbourhoods are designed purely to trigger fear. 'Share this' embedded in the title is a manipulation — creating urgency to spread the fear further. This style of content plays on anxiety about safety without providing any verifiable, specific information.",
+  tip:"Ask: who, where, when — specifically? Fear content that stays vague is almost always designed to provoke a reaction rather than inform. Check your local police or council for real safety information."
+},
+
+{ type:"obvious", title:"THE TRUTH About 5G Towers They Are Hiding From You (Leaked Documents) 📡",
+  channel:"Awaken Now Media", subs:"1.7M subscribers", views:"4.1M views", age:"2 months ago", duration:"22:18",
+  bg:"linear-gradient(135deg,#0a0a0a,#1a1a3a)", emoji:"📡", overlay:"LEAKED PROOF", overlayColor:"#00ccff",
+  avatarBg:"#1a1a3a", avatarLetter:"A",
+  technique:"Conspiracy Hook + Fake Evidence Claim",
+  explanation:"'They are hiding from you' combined with 'leaked documents' is a conspiracy template. 5G technology is one of the most studied areas of communications engineering, and its safety is well-established by independent international research bodies. 'Leaked documents' rarely appear — these are usually misrepresented or fabricated images.",
+  tip:"When a video claims hidden proof that thousands of scientists have missed, look up the actual scientific consensus. The WHO, NHS, and independent research bodies publish their findings openly."
+},
+
+{ type:"obvious", title:"URGENT ⚠️ If You Have a Bank Account, Watch This Video IMMEDIATELY Before Tomorrow",
+  channel:"Your Financial Safety", subs:"445K subscribers", views:"1.9M views", age:"6 hours ago", duration:"11:02",
+  bg:"linear-gradient(135deg,#1a1000,#4a2d00)", emoji:"🏦", overlay:"ACT NOW", overlayColor:"#ffaa00",
+  avatarBg:"#4a2d00", avatarLetter:"Y",
+  technique:"False Emergency + Fake Urgency",
+  explanation:"'Before tomorrow' is pure manufactured urgency. If there were a real emergency affecting all bank accounts, it would be on the BBC, in emails from your bank, and reported by financial regulators — not broken first on a YouTube channel. This formula is designed to bypass your critical thinking.",
+  tip:"Real bank alerts come directly from your bank, by letter, email, or phone. If in doubt, ring the number on the back of your bank card — not a number shown in a YouTube video."
+},
+
+{ type:"obvious", title:"⏰ LAST CHANCE: This Video WILL Be Deleted at Midnight Tonight — Save It Now",
+  channel:"Hidden Knowledge Archive", subs:"67K subscribers", views:"220K views", age:"18 hours ago", duration:"34:12",
+  bg:"linear-gradient(135deg,#1a1a00,#4a3a00)", emoji:"⏰", overlay:"DELETING AT MIDNIGHT", overlayColor:"#ffdd00",
+  avatarBg:"#4a3a00", avatarLetter:"H",
+  technique:"Manufactured Urgency / False Scarcity",
+  explanation:"If a video were genuinely going to be deleted, the creator would have no control over when you see the countdown. In practice, this video was there yesterday and will be there next week. 'Save it' encourages you to download or share, spreading the content. It's a tactic to make you act without thinking.",
+  tip:"When content creates extreme time pressure, that is the moment to slow down, not speed up. Real important information doesn't expire at midnight."
+},
+
+{ type:"obvious", title:"😱 She Said YES!! I Can't Believe What Happened... Everything Has Changed Forever",
+  channel:"My Real Life Story", subs:"2.3M subscribers", views:"6.8M views", age:"3 days ago", duration:"17:29",
+  bg:"linear-gradient(135deg,#1a0a1a,#4a0050)", emoji:"😱", overlay:"YOU WON'T BELIEVE THIS", overlayColor:"#ff88ff",
+  avatarBg:"#4a0050", avatarLetter:"M",
+  technique:"Emotional Vagueness / Curiosity Gap",
+  explanation:"This title contains no information at all — only emotion and vague drama. 'Everything has changed forever' and 'I can't believe what happened' are curiosity-gap tricks. The viewer has no way to know if this is relevant to them; the title is engineered purely to trigger the click. Often the actual content is trivial or disappointing.",
+  tip:"A title that tells you nothing except that something big happened is designed to bait your curiosity. Real content gives you a reason to watch in the title itself."
+},
+
+{ type:"obvious", title:"Harvard Doctor REVEALS: Do THIS ONE Thing Every Morning to NEVER Get Sick Again",
+  channel:"Longevity Labs", subs:"3.1M subscribers", views:"8.4M views", age:"2 weeks ago", duration:"19:45",
+  bg:"linear-gradient(135deg,#001a0a,#003322)", emoji:"🩺", overlay:"HARVARD DOCTOR'S SECRET", overlayColor:"#00ffaa",
+  avatarBg:"#003322", avatarLetter:"L",
+  technique:"False Authority + Miracle Claim",
+  explanation:"'Harvard Doctor' is used to borrow credibility. The vague 'one thing' that prevents all illness forever is medically impossible — and the claim is never specific enough to be verified. These videos almost always lead to a product being sold. Real Harvard research is published in journals with named authors you can look up.",
+  tip:"Search the specific claim ('one morning habit prevents all illness') on a reliable health site like NHS.uk or MayoClinic.org. If it's not there, it's not established medicine."
+},
+
+{ type:"obvious", title:"How I Made $47,000 In ONE MONTH Working From Home (Anyone Can Do This!!) 💵",
+  channel:"Freedom Income Method", subs:"178K subscribers", views:"1.4M views", age:"1 week ago", duration:"21:03",
+  bg:"linear-gradient(135deg,#0a1a00,#1a3d00)", emoji:"💵", overlay:"$47,000 IN 30 DAYS", overlayColor:"#44ff44",
+  avatarBg:"#1a3d00", avatarLetter:"F",
+  technique:"Get-Rich-Quick Bait",
+  explanation:"Specific large dollar amounts in short timeframes ('$47,000 in one month') are a hallmark of financial scam content. '(Anyone can do this)' is designed to make it feel accessible. The actual content almost always involves buying a course, joining a scheme, or recruiting others — not a genuine income method.",
+  tip:"If someone genuinely had a reliable method to make $47,000 a month, they would not need to monetise it by selling a YouTube course. Be very sceptical of any video promising large income in a short time."
+},
+
+{ type:"obvious", title:"Your SMARTPHONE Is Recording Everything You Say Right Now 🎤 Turn This Off IMMEDIATELY",
+  channel:"Digital Privacy Shield", subs:"990K subscribers", views:"5.5M views", age:"5 days ago", duration:"7:44",
+  bg:"linear-gradient(135deg,#0a0a2a,#1a1a5a)", emoji:"📱", overlay:"THEY'RE LISTENING", overlayColor:"#4488ff",
+  avatarBg:"#1a1a5a", avatarLetter:"D",
+  technique:"Tech Fear-Bait",
+  explanation:"Smartphones do have microphones, but the claim that they are recording everything you say 'right now' is a persistent myth. This style of video generates huge anxiety and views by exaggerating real privacy concerns. The 'turn this off immediately' creates false urgency. Real privacy advice is specific and evidence-based.",
+  tip:"For genuine smartphone privacy advice, check trusted sources like the BBC, Which?, or your device maker's support pages. Real privacy tips don't need dramatic all-caps urgency."
+},
+
+{ type:"obvious", title:"BIBLICAL PROPHECY FULFILLED 🙏 What Comes Next Will SHOCK Even Non-Believers",
+  channel:"End Times Revelation", subs:"2.8M subscribers", views:"9.1M views", age:"4 days ago", duration:"28:14",
+  bg:"linear-gradient(135deg,#0a0500,#2a1500)", emoji:"⚡", overlay:"THE END IS NEAR", overlayColor:"#ffaa00",
+  avatarBg:"#2a1500", avatarLetter:"E",
+  technique:"Apocalypse / Fear-Bait",
+  explanation:"Claiming that Biblical prophecy is being fulfilled 'now' is a recurring pattern that has been used for centuries to provoke fear and urgency. These channels regularly update which current event 'proves' prophecy. The 'shock even non-believers' hook is designed to make the content feel universally significant. It drives repeated viewing and donation.",
+  tip:"Apocalyptic content that connects today's news to prophecy has been produced in every decade. Note that previous predictions have never come true on schedule. Healthy scepticism is warranted."
+},
+
+{ type:"obvious", title:"THEY Are Destroying America and the MEDIA Won't Show You THIS 😡🇺🇸 SHARE NOW",
+  channel:"Real Patriots Network", subs:"4.5M subscribers", views:"11M views", age:"2 days ago", duration:"16:30",
+  bg:"linear-gradient(135deg,#1a0000,#3d0000)", emoji:"😡", overlay:"MEDIA IS LYING", overlayColor:"#ff2200",
+  avatarBg:"#3d0000", avatarLetter:"R",
+  technique:"Rage-Bait / Political Outrage",
+  explanation:"Vague 'THEY' combined with media suppression claims and emotional anger is a rage-bait template. It's designed not to inform but to make you angry enough to share. The 'SHARE NOW' in the title explicitly asks you to spread the outrage. This kind of content thrives on emotional reaction, not factual content.",
+  tip:"When a video's title is primarily an emotion (anger, fear, shock) rather than information, it is engineered to bypass your judgement. Political content that claims only it knows the truth warrants extra scrutiny."
+},
+
+{ type:"obvious", title:"I Lost 52 Pounds in 30 DAYS Without Diet or Exercise (NOT CLICKBAIT) 😮",
+  channel:"Transformation Nation", subs:"670K subscribers", views:"2.7M views", age:"6 days ago", duration:"14:58",
+  bg:"linear-gradient(135deg,#1a0a00,#4a1a00)", emoji:"⚡", overlay:"52 LBS IN 30 DAYS", overlayColor:"#ffaa44",
+  avatarBg:"#4a1a00", avatarLetter:"T",
+  technique:"Impossible Claim + 'Not Clickbait' Signal",
+  explanation:"Losing 52 pounds in 30 days without diet or exercise is physiologically impossible — safe weight loss is around 1–2 pounds per week maximum. Writing 'NOT CLICKBAIT' is a tell: legitimate content never needs to announce this because the honest title speaks for itself. These videos typically sell supplements or programmes.",
+  tip:"'Not clickbait' in a title almost always means it is. Apply a reality check: is this medically or physically possible? If the claim sounds impossible, it is."
+},
+
+{ type:"obvious", title:"FAKE NEWS EXPOSED 📺 Mainstream Media CAUGHT Lying Again — Watch Before Deleted",
+  channel:"Truth Seeker Network", subs:"3.3M subscribers", views:"7.2M views", age:"1 day ago", duration:"23:01",
+  bg:"linear-gradient(135deg,#0a0a00,#2a2a00)", emoji:"📺", overlay:"THEY LIED TO YOU", overlayColor:"#ffff00",
+  avatarBg:"#2a2a00", avatarLetter:"T",
+  technique:"Meta-Bait / Media Distrust",
+  explanation:"Claiming to expose mainstream media lies while also using fake urgency ('watch before deleted') is a double manipulation. This genre produces blanket distrust of all journalism, making viewers more reliant on that single channel for 'truth'. Real media criticism names specific articles, journalists, and evidence — not vague 'caught lying again'.",
+  tip:"Genuine media criticism is specific: it names the outlet, the article, and the error, and links to both. Vague 'all media is lying' claims benefit the person telling you that — not you."
+},
+
+{ type:"obvious", title:"⚠️ This Common Vegetable Is SLOWLY KILLING You — Stop Eating It Immediately",
+  channel:"Pure Health Insider", subs:"1.4M subscribers", views:"4.8M views", age:"3 weeks ago", duration:"11:33",
+  bg:"linear-gradient(135deg,#001a00,#004400)", emoji:"🥦", overlay:"STOP EATING THIS", overlayColor:"#ff6600",
+  avatarBg:"#004400", avatarLetter:"P",
+  technique:"Food Fear-Bait",
+  explanation:"'This common vegetable will kill you' is a food-fear template. The vegetable is never named in the title — you have to click to find out. The vague threat ('slowly killing you') cannot be evaluated without clicking. These videos cycle through demonising one food after another, often promoting a competing product or diet programme.",
+  tip:"No single common vegetable kills people. Nutritional science is nuanced and based on long-term studies. For genuine food advice, consult your GP or a registered dietitian."
+},
+
+{ type:"obvious", title:"Bill Gates EXPOSED 👁 The Secret Plan They Don't Want You To See | Full Documentary",
+  channel:"The Awakening Documentary", subs:"2.1M subscribers", views:"15M views", age:"8 months ago", duration:"1:47:22",
+  bg:"linear-gradient(135deg,#0a0a1a,#00001a)", emoji:"👁", overlay:"THE REAL AGENDA", overlayColor:"#8888ff",
+  avatarBg:"#00001a", avatarLetter:"A",
+  technique:"Celebrity Conspiracy Theory",
+  explanation:"Attaching a famous name to an 'exposed' or 'secret plan' narrative is a reliable way to get enormous views. The 'full documentary' label adds fake legitimacy. Real documentaries are made by independent journalists, named producers, and broadcast on named platforms — not anonymous YouTube channels with eye emojis.",
+  tip:"When a famous person is 'exposed' in a YouTube documentary, search their name on a reliable news site. Real exposés appear in newspapers and broadcasters, not exclusively on one YouTube channel."
+},
+
+{ type:"obvious", title:"🚨 ALERT: Social Security CHANGES Starting THIS MONTH — What They Won't Tell You",
+  channel:"Senior Benefits Watch", subs:"340K subscribers", views:"1.8M views", age:"1 week ago", duration:"13:17",
+  bg:"linear-gradient(135deg,#1a0a00,#3d1500)", emoji:"📋", overlay:"URGENT CHANGES", overlayColor:"#ff8800",
+  avatarBg:"#3d1500", avatarLetter:"S",
+  technique:"Senior-Targeted Fear-Bait",
+  explanation:"Social Security content targeting seniors with urgent changes 'they won't tell you' specifically exploits financial anxiety in retirement. Real Social Security changes are announced by the Social Security Administration directly — by post, on their website, and through mainstream news. This channel is not an official source.",
+  tip:"For any changes to your state pension or benefits, go directly to your government's official website (gov.uk for UK, ssa.gov for US) or contact them directly. Never rely on YouTube for official benefit information."
+},
+
+// ══ LESS OBVIOUS BAIT ══ (10)
+
+{ type:"subtle", title:"The Real Reason Your Doctor Won't Prescribe This Common Vitamin",
+  channel:"Integrative Health Journal", subs:"280K subscribers", views:"920K views", age:"2 weeks ago", duration:"15:22",
+  bg:"linear-gradient(135deg,#0a1a10,#1a3a20)", emoji:"💊", overlay:"", overlayColor:"",
+  avatarBg:"#1a3a20", avatarLetter:"I",
+  technique:"Subtle Suppression Claim",
+  explanation:"This looks like journalism but follows the 'doctors are hiding something' template in a quieter way. 'Won't prescribe' implies suppression, but the most common reason doctors don't prescribe a supplement is because the evidence for it is weak. The video almost certainly promotes that vitamin. Notice there's no specific vitamin named — you have to click to find out.",
+  tip:"The missing specific information (which vitamin?) is the tell. Trustworthy health content tells you what it's about in the title. Ask: is this claiming doctors are suppressing a cure, or explaining a nuanced medical debate?"
+},
+
+{ type:"subtle", title:"Why I Left Google After 12 Years — The Uncomfortable Truth About Big Tech",
+  channel:"Marcus Chen - Tech Insider", subs:"156K subscribers", views:"3.4M views", age:"1 month ago", duration:"28:47",
+  bg:"linear-gradient(135deg,#0a0a1a,#1a1a3a)", emoji:"💼", overlay:"", overlayColor:"",
+  avatarBg:"#1a1a3a", avatarLetter:"M",
+  technique:"Insider Drama / Revelation Bait",
+  explanation:"This is subtler because it could be a genuine personal story. But 'The Uncomfortable Truth' signals that the video is framing itself as a revelation others are afraid to share. These videos often contain legitimate personal experience but are packaged to maximise outrage and distrust of a whole industry. Check: is this person verifiably who they claim to be? Do they have a product to sell?",
+  tip:"Former-employee revelation videos can be genuine, but look for: Is the person named and verifiable? Do they have an agenda (selling a course, new job at a competitor)? One person's experience isn't 'the truth about' an entire company."
+},
+
+{ type:"subtle", title:"What Banks Don't Want You to Know About Your Savings Account",
+  channel:"Your Money Matters", subs:"445K subscribers", views:"1.7M views", age:"3 weeks ago", duration:"18:03",
+  bg:"linear-gradient(135deg,#001020,#002040)", emoji:"🏦", overlay:"", overlayColor:"",
+  avatarBg:"#002040", avatarLetter:"Y",
+  technique:"Conspiracy-Lite Financial Bait",
+  explanation:"This sounds like consumer advocacy, and sometimes these videos do contain valid information (like that savings rates are negotiable). But 'what banks don't want you to know' frames it as secret suppressed knowledge. Legitimate financial advice (from Which? or MoneySavingExpert, for example) doesn't need conspiratorial framing — it just tells you the information directly.",
+  tip:"The framing ('don't want you to know') is the warning sign, not necessarily the content. Cross-reference any financial tips from YouTube with established consumer finance sources like MoneySavingExpert, Which?, or Citizens Advice."
+},
+
+{ type:"subtle", title:"I Analysed 500 Supplements. Here's the ONLY One That Actually Works.",
+  channel:"Evidence Based Wellness", subs:"312K subscribers", views:"2.1M views", age:"5 weeks ago", duration:"22:34",
+  bg:"linear-gradient(135deg,#0a1a00,#1a3d00)", emoji:"🔬", overlay:"", overlayColor:"",
+  avatarBg:"#1a3d00", avatarLetter:"E",
+  technique:"Fake Expertise + Singular Miracle Claim",
+  explanation:"'I analysed 500 supplements' sounds scientific, and the channel name ('Evidence Based Wellness') borrows credibility. But a YouTube creator is not a clinical research institution. 'The ONLY one that actually works' is a superlative claim that no responsible scientist would make. This almost always leads to a specific product recommendation — often one they're being paid to promote.",
+  tip:"Who is the person? What are their actual credentials? Is the supplement they recommend one they sell or are affiliated with? Real supplement research is conducted by universities and published in journals — not concluded by one YouTube creator."
+},
+
+{ type:"subtle", title:"This Common Sleep Habit Is Silently Damaging Your Brain (Most People Do This)",
+  channel:"Neuro Health Weekly", subs:"890K subscribers", views:"4.2M views", age:"1 month ago", duration:"16:41",
+  bg:"linear-gradient(135deg,#0a0a1a,#1a1a4a)", emoji:"😴", overlay:"", overlayColor:"",
+  avatarBg:"#1a1a4a", avatarLetter:"N",
+  technique:"Vague Health Threat",
+  explanation:"The unnamed habit ('most people do this') you have to click to discover is a classic curiosity-gap technique. 'Silently damaging' creates quiet dread without any specific information. Real neuroscience content names the specific behaviour, the specific research, and the specific effect. The vagueness is the manipulation.",
+  tip:"If a health claim can't be evaluated without clicking, that's by design. Trustworthy health content gives you the key information in the title — the video then explains the evidence."
+},
+
+{ type:"subtle", title:"The Dark Side of Yoga Nobody Talks About",
+  channel:"Holistic Life Review", subs:"198K subscribers", views:"1.1M views", age:"6 weeks ago", duration:"19:58",
+  bg:"linear-gradient(135deg,#1a0a1a,#2a0a3a)", emoji:"🧘", overlay:"", overlayColor:"",
+  avatarBg:"#2a0a3a", avatarLetter:"H",
+  technique:"'Dark Side' Contrarian Bait",
+  explanation:"The 'nobody talks about' formula implies suppressed knowledge. In reality, yoga injuries and limitations are discussed extensively in physio, medical, and wellness communities. This framing makes ordinary caution sound like a secret. These videos are often promoting an alternative (a competing fitness method, a course, a different approach) rather than genuine safety education.",
+  tip:"'Nobody talks about X' followed by X being a well-known topic is a common pattern. It makes the creator seem uniquely informed. Check whether reputable health sources (like the NHS or established physio sites) do, in fact, talk about the topic."
+},
+
+{ type:"subtle", title:"The Sleep Trick Neurologists Use Themselves to Fall Asleep in 2 Minutes",
+  channel:"Sleep Science Today", subs:"1.1M subscribers", views:"5.7M views", age:"2 months ago", duration:"9:13",
+  bg:"linear-gradient(135deg,#00001a,#000030)", emoji:"🧠", overlay:"", overlayColor:"",
+  avatarBg:"#000030", avatarLetter:"S",
+  technique:"False Authority Appeal",
+  explanation:"'Neurologists use themselves' is an anonymous authority claim — which specific neurologists? Where's the evidence? The '2 minutes' is a specific, too-good-to-be-true timeframe. This video may contain some genuine sleep hygiene tips, but the framing borrows medical authority it doesn't have. Sleep research is real and interesting — but it doesn't promise 2-minute guaranteed results.",
+  tip:"When a video claims that experts personally use a specific technique, ask: named which experts? Where is the evidence? Real sleep medicine advice is more cautious, not 'guaranteed in 2 minutes'."
+},
+
+{ type:"subtle", title:"Why Successful People Never Eat Breakfast (The Science Is Clear)",
+  channel:"Performance Mindset", subs:"720K subscribers", views:"3.8M views", age:"3 months ago", duration:"14:27",
+  bg:"linear-gradient(135deg,#1a1000,#3d2a00)", emoji:"🌅", overlay:"", overlayColor:"",
+  avatarBg:"#3d2a00", avatarLetter:"P",
+  technique:"Contrarian Hook + False Certainty",
+  explanation:"Linking breakfast skipping to being 'successful' is a hustle-culture manipulation. 'The science is clear' overstates the case — nutrition science on meal timing is genuinely mixed and contested. This video pattern (confident contrarian claim + 'science') oversimplifies complex research to get clicks. What it promotes (intermittent fasting) is often tied to affiliated products.",
+  tip:"When a video claims 'the science is clear' on a nutrition topic, it almost always isn't. Real nutrition science is full of nuance and ongoing debate. Look for NHS or registered dietitian guidance."
+},
+
+{ type:"subtle", title:"I Switched to This One Supplement and My Life Completely Changed",
+  channel:"Wellness Journey Daily", subs:"88K subscribers", views:"650K views", age:"3 weeks ago", duration:"12:09",
+  bg:"linear-gradient(135deg,#0a1a0a,#1a3a1a)", emoji:"✨", overlay:"", overlayColor:"",
+  avatarBg:"#1a3a1a", avatarLetter:"W",
+  technique:"Testimonial Bait / Affiliate Marketing",
+  explanation:"Personal testimonials are powerful — that's why they're used. But 'my life completely changed' is unmeasurable, and the supplement is unnamed in the title (you click to find out). This almost always involves affiliate links, meaning the creator earns money if you buy what they recommend. The personal story is real; the implication that it will work the same for you is the manipulation.",
+  tip:"Look in the video description for affiliate links or discount codes. These mean the creator earns commission if you buy. That's a financial incentive to recommend products regardless of whether they work."
+},
+
+{ type:"subtle", title:"What Your Car Insurance Company Hopes You Never Discover",
+  channel:"Smart Consumer Report", subs:"234K subscribers", views:"1.3M views", age:"1 month ago", duration:"11:44",
+  bg:"linear-gradient(135deg,#001a1a,#003344)", emoji:"🚗", overlay:"", overlayColor:"",
+  avatarBg:"#003344", avatarLetter:"S",
+  technique:"Conspiracy-Lite Consumer Bait",
+  explanation:"This uses the 'hidden from you by institutions' formula. The content may have genuinely useful tips about reducing insurance premiums, but the conspiratorial framing ('hopes you never discover') is manipulative. Legitimate consumer advice from Which? or MoneySavingExpert presents the same information directly without implying industry suppression.",
+  tip:"Consumer advice disguised as secret knowledge is a popular genre. The framing is bait; the underlying tips may be real. Cross-check any advice with established consumer organisations."
+},
+
+// ══ LEGITIMATE CONTENT ══ (20)
+
+{ type:"legit", title:"How to Make the Perfect Roast Chicken | BBC Good Food",
+  channel:"BBC Good Food", subs:"1.2M subscribers", views:"2.8M views", age:"3 years ago", duration:"5:44",
+  bg:"linear-gradient(135deg,#3a1a00,#8a4500)", emoji:"🍗", overlay:"", overlayColor:"",
+  avatarBg:"#cc0000", avatarLetter:"B",
+  verified:true,
+  technique:null,
+  explanation:"This is exactly what it says: a cooking video from a well-known and established food publisher. The title is specific ('perfect roast chicken'), the channel is verifiable and trusted, the view count is healthy but not suspicious, and the video is several years old — showing it's not urgent bait.",
+  tip:"Good content markers: a specific, descriptive title; a recognisable and verifiable channel; no emotional manipulation or urgency in the title."
+},
+
+{ type:"legit", title:"Understanding Your NHS Prescription Benefits: A Complete Guide | Age UK",
+  channel:"Age UK", subs:"34K subscribers", views:"87K views", age:"8 months ago", duration:"12:18",
+  bg:"linear-gradient(135deg,#002a4a,#004a7a)", emoji:"💙", overlay:"", overlayColor:"",
+  avatarBg:"#004a7a", avatarLetter:"A",
+  verified:true,
+  technique:null,
+  explanation:"Age UK is a well-established, named charity. The title is specific and informational — it tells you exactly what you'll learn. The view count is modest, which is normal for helpful but unsexy public information content. This is precisely the kind of reliable official guidance seniors need.",
+  tip:"Charities with long track records, named staff, and registered status are reliable sources. Low view counts on genuinely useful information channels are completely normal — don't mistake viral for reliable."
+},
+
+{ type:"legit", title:"10 Gentle Stretches for Lower Back Pain Relief | Mayo Clinic",
+  channel:"Mayo Clinic", subs:"1.8M subscribers", views:"4.1M views", age:"2 years ago", duration:"8:53",
+  bg:"linear-gradient(135deg,#002030,#003a5a)", emoji:"🧘", overlay:"", overlayColor:"",
+  avatarBg:"#006699", avatarLetter:"M",
+  verified:true,
+  technique:null,
+  explanation:"The Mayo Clinic is one of the world's most respected medical institutions. A specific, practical title with no dramatic language, from a verifiable institution with millions of subscribers and years of content. This is exactly the kind of health content that is safe and useful.",
+  tip:"Reputable medical institutions (Mayo Clinic, NHS, Johns Hopkins) have verifiable YouTube channels. You can confirm them by searching the institution's name plus 'official YouTube channel'."
+},
+
+{ type:"legit", title:"Rome: City of the Caesars — Full History Documentary | Odyssey",
+  channel:"Odyssey — Ancient History Documentaries", subs:"2.5M subscribers", views:"1.1M views", age:"4 years ago", duration:"52:34",
+  bg:"linear-gradient(135deg,#2a1a00,#5a3a00)", emoji:"🏛️", overlay:"", overlayColor:"",
+  avatarBg:"#8a5a00", avatarLetter:"O",
+  verified:true,
+  technique:null,
+  explanation:"A documentary channel with a clear subject (ancient history), a specific and honest title, and a large established subscriber base. The video is old and has modest views relative to the channel size — typical of educational documentary content.",
+  tip:"Long-established documentary channels with a clear, consistent subject matter and no emotional manipulation in their titles are generally reliable. Look for channels with a long history and consistent content."
+},
+
+{ type:"legit", title:"How to Video Call on an iPad — Step-by-Step Tutorial for Beginners",
+  channel:"Senior Tech Help", subs:"156K subscribers", views:"340K views", age:"1 year ago", duration:"9:47",
+  bg:"linear-gradient(135deg,#001a2a,#002a4a)", emoji:"📱", overlay:"", overlayColor:"",
+  avatarBg:"#004466", avatarLetter:"S",
+  technique:null,
+  explanation:"A specific, practical tutorial with a clear, honest title. No manipulation, no urgency, no fear. The channel name matches the content (senior-focused tech help). The view count is reasonable for a niche tutorial. This is exactly the kind of useful, honest content that exists in abundance on YouTube.",
+  tip:"Step-by-step tutorials with specific, honest titles and no emotional manipulation are almost always safe. The title tells you exactly what you'll get."
+},
+
+{ type:"legit", title:"Best Budget Hearing Aids in 2024: Our Honest Test Results | Which?",
+  channel:"Which? UK", subs:"287K subscribers", views:"215K views", age:"10 months ago", duration:"11:02",
+  bg:"linear-gradient(135deg,#001a00,#003300)", emoji:"👂", overlay:"", overlayColor:"",
+  avatarBg:"#006600", avatarLetter:"W",
+  verified:true,
+  technique:null,
+  explanation:"Which? is a well-known independent consumer organisation that tests products and publishes its findings. 'Our honest test results' is a transparent, specific claim. The year in the title is a mark of current, dated information — a sign of genuine journalism rather than evergreen bait.",
+  tip:"Which? and similar consumer testing organisations (Consumer Reports, etc.) are reliable because they're funded by subscriptions, not by the brands they review. Look for that independence."
+},
+
+{ type:"legit", title:"20-Minute Gentle Morning Yoga for Seniors | Yoga with Adriene",
+  channel:"Yoga With Adriene", subs:"12.4M subscribers", views:"8.2M views", age:"3 years ago", duration:"20:04",
+  bg:"linear-gradient(135deg,#0a1a1a,#1a3a2a)", emoji:"🧘", overlay:"", overlayColor:"",
+  avatarBg:"#2a7a4a", avatarLetter:"Y",
+  verified:true,
+  technique:null,
+  explanation:"Yoga with Adriene is one of YouTube's most trusted wellness channels. The title is specific (duration, difficulty level, audience), the channel has over 12 million subscribers built over many years, and the content has been consistently and publicly produced. High view count here reflects genuine popularity over time, not a viral bait spike.",
+  tip:"Large subscriber counts built over many years, combined with consistent content type and honest descriptive titles, are signs of genuine trust built with an audience."
+},
+
+{ type:"legit", title:"A Week of Eating With Type 2 Diabetes: What I Actually Eat Each Day",
+  channel:"Cheryl's Diabetes Journey", subs:"43K subscribers", views:"180K views", age:"6 months ago", duration:"14:22",
+  bg:"linear-gradient(135deg,#1a0a00,#3a1a00)", emoji:"🥗", overlay:"", overlayColor:"",
+  avatarBg:"#8a4400", avatarLetter:"C",
+  technique:null,
+  explanation:"A personal health diary from a small channel — but an honest one. The title tells you exactly what you'll get: one week of real meals from someone living with Type 2 diabetes. No miracle claims, no suppressed secrets, just a practical personal account. Small channels sharing genuine personal experience are perfectly valuable.",
+  tip:"Small channels with specific, honest personal content are often very trustworthy. The key is that the title is honest — you know exactly what you're getting before you click."
+},
+
+{ type:"legit", title:"Scenic Train Journey Through the Swiss Alps — 4K Window View | Rail Journeys",
+  channel:"Rail Journeys Europe", subs:"890K subscribers", views:"6.7M views", age:"2 years ago", duration:"2:47:33",
+  bg:"linear-gradient(135deg,#001020,#001a30)", emoji:"🚂", overlay:"", overlayColor:"",
+  avatarBg:"#336699", avatarLetter:"R",
+  technique:null,
+  explanation:"A relaxing travel video with a completely honest and descriptive title. No manipulation whatsoever. High view counts on relaxation/scenery content are entirely normal — many people play these as background. The '4K Window View' is a specific, accurate description of exactly what the video is.",
+  tip:"Relaxation, nature, travel, and music videos with descriptive titles are some of the most reliably honest content on YouTube."
+},
+
+{ type:"legit", title:"3 Hours of Mozart: Relaxing Classical Music for Reading and Sleep",
+  channel:"Classical Music Archive", subs:"3.1M subscribers", views:"22M views", age:"5 years ago", duration:"3:04:17",
+  bg:"linear-gradient(135deg,#1a0010,#2a0025)", emoji:"🎼", overlay:"", overlayColor:"",
+  avatarBg:"#660044", avatarLetter:"C",
+  technique:null,
+  explanation:"A music compilation with a specific, honest title. Very high view counts on compilation music channels are normal — people listen on repeat, for hours, for sleep or focus. No manipulation, no fear, no suppressed secrets. The channel has built trust over five years with a consistent type of content.",
+  tip:"Compilation music, ambient sound, and relaxation channels are some of the safest content on YouTube. High view counts here simply reflect lots of repeat listeners."
+},
+
+{ type:"legit", title:"How to Spot a Scam Email Before You Click — Step by Step Guide | Age UK",
+  channel:"Age UK", subs:"34K subscribers", views:"124K views", age:"1 year ago", duration:"7:33",
+  bg:"linear-gradient(135deg,#002a4a,#004a7a)", emoji:"📧", overlay:"", overlayColor:"",
+  avatarBg:"#004a7a", avatarLetter:"A",
+  verified:true,
+  technique:null,
+  explanation:"This is protective education from a trusted organisation — the opposite of what it's teaching you to spot. It describes a specific, useful skill in plain language. You know exactly what the video contains before clicking. Note the contrast with bait videos: this title informs rather than alarms.",
+  tip:"Educational content about online safety from named charities or government bodies is exactly the type of content worth trusting — and sharing with friends and family."
+},
+
+{ type:"legit", title:"Getting Started With Birdwatching: A Beginner's Complete Guide | RSPB",
+  channel:"RSPB — Royal Society for the Protection of Birds", subs:"78K subscribers", views:"156K views", age:"2 years ago", duration:"18:44",
+  bg:"linear-gradient(135deg,#003300,#004a00)", emoji:"🐦", overlay:"", overlayColor:"",
+  avatarBg:"#336600", avatarLetter:"R",
+  verified:true,
+  technique:null,
+  explanation:"The RSPB is a well-known, respected wildlife charity in the UK. Specific, descriptive title for a hobby guide. Modest view count entirely appropriate for a niche topic. No emotional manipulation, no urgency, no vague promise. This is exactly what it says it is.",
+  tip:"Named, established organisations — charities, museums, government bodies, universities — produce reliable YouTube content. You can verify them independently."
+},
+
+{ type:"legit", title:"Making Fresh Pasta With My Grandmother in Sicily — Traditional Family Recipe",
+  channel:"Cooking With Nonna Rosa", subs:"215K subscribers", views:"1.4M views", age:"1 year ago", duration:"22:11",
+  bg:"linear-gradient(135deg,#2a0a00,#5a2000)", emoji:"🍝", overlay:"", overlayColor:"",
+  avatarBg:"#8a3300", avatarLetter:"N",
+  technique:null,
+  explanation:"A warm, specific, completely honest title. 'My grandmother in Sicily' is personal and specific — no vague 'this will change your life' language. Cooking channels with this style of authentic, personal content are beloved because they're honest. One million views reflects genuine love for the content, not a bait spike.",
+  tip:"Personal cooking and craft channels with specific, warm, honest titles are among the most trustworthy on YouTube. The authenticity is in the detail."
+},
+
+{ type:"legit", title:"Why Does Inflation Happen? A Clear Explanation | Crash Course Economics",
+  channel:"Crash Course", subs:"15.2M subscribers", views:"3.8M views", age:"8 years ago", duration:"9:48",
+  bg:"linear-gradient(135deg,#001a2a,#002a4a)", emoji:"📊", overlay:"", overlayColor:"",
+  avatarBg:"#0055aa", avatarLetter:"C",
+  verified:true,
+  technique:null,
+  explanation:"Crash Course is a long-established, trusted educational channel with millions of subscribers and content vetted by educators. Eight years old with 3.8M views shows genuine sustained interest, not a viral bait spike. The title is a real question answered honestly.",
+  tip:"Established educational channels (Crash Course, TED-Ed, Khan Academy) have years of publicly accountable content and verifiable institutional backing."
+},
+
+{ type:"legit", title:"My Honest Review of the Phonak Slim Hearing Aids After 6 Months of Daily Use",
+  channel:"Living Well With Hearing Loss", subs:"67K subscribers", views:"89K views", age:"4 months ago", duration:"16:03",
+  bg:"linear-gradient(135deg,#001a1a,#002a2a)", emoji:"👂", overlay:"", overlayColor:"",
+  avatarBg:"#006666", avatarLetter:"L",
+  technique:null,
+  explanation:"A specific product review with a specific timeframe ('6 months of daily use') from a channel focused on the topic. The word 'honest' is used here appropriately — it's paired with specificity and a personal context. Modest view counts on a niche product review are completely normal.",
+  tip:"Product reviews that name the specific product, give a specific timeframe, and come from a channel consistently focused on that topic are usually genuine. Check the description for disclosure of any sponsorship."
+},
+
+{ type:"legit", title:"How to Set Up Two-Factor Authentication on Your Phone: iPhone and Android",
+  channel:"Which? Tech Support", subs:"287K subscribers", views:"445K views", age:"1 year ago", duration:"8:17",
+  bg:"linear-gradient(135deg,#001a00,#003300)", emoji:"🔐", overlay:"", overlayColor:"",
+  avatarBg:"#006600", avatarLetter:"W",
+  verified:true,
+  technique:null,
+  explanation:"A specific, practical, named-topic tutorial from a trusted consumer organisation. Covers both iPhone and Android — that specificity is a mark of genuine helpfulness. No alarm, no urgency, no secrets — just 'here's how to do a thing'. Exactly the kind of digital safety education that genuinely helps people.",
+  tip:"Practical how-to content with specific, honest titles from verifiable organisations is some of the most valuable content on YouTube."
+},
+
+{ type:"legit", title:"Watercolour Painting for Absolute Beginners — Lesson 1: Washes and Blending",
+  channel:"The Art Shed — Online", subs:"124K subscribers", views:"680K views", age:"2 years ago", duration:"27:44",
+  bg:"linear-gradient(135deg,#001a1a,#002a4a)", emoji:"🎨", overlay:"", overlayColor:"",
+  avatarBg:"#224488", avatarLetter:"T",
+  technique:null,
+  explanation:"Lesson 1 of a series — that structure is a mark of a genuine educator planning content thoughtfully. Specific technique ('washes and blending'), clear audience ('absolute beginners'). Craft and art tutorial channels are among the most reliably honest on YouTube.",
+  tip:"Channels that number their lessons, name specific techniques, and build a consistent curriculum are almost always genuine educational creators."
+},
+
+{ type:"legit", title:"The Secret Life of Honeybees — Nature Documentary | BBC Earth",
+  channel:"BBC Earth", subs:"14.7M subscribers", views:"11.2M views", age:"4 years ago", duration:"14:22",
+  bg:"linear-gradient(135deg,#1a1000,#4a2a00)", emoji:"🐝", overlay:"", overlayColor:"",
+  avatarBg:"#cc8800", avatarLetter:"B",
+  verified:true,
+  technique:null,
+  explanation:"The word 'secret' here is used in its genuine sense — the remarkable hidden world of bees that cameras reveal. This is entirely different from 'secrets THEY are hiding from you'. BBC Earth is a globally trusted broadcaster with decades of verifiable documentary output. The context transforms the word completely.",
+  tip:"Context matters: 'secret life of bees' (nature using 'secret' poetically) is completely different from 'the secret THEY won't tell you'. Look at the whole title and channel together."
+},
+
+{ type:"legit", title:"Beginner's Guide to Online Banking: Step by Step | Lloyds Bank",
+  channel:"Lloyds Bank", subs:"22K subscribers", views:"340K views", age:"2 years ago", duration:"6:52",
+  bg:"linear-gradient(135deg,#002a00,#003a00)", emoji:"💳", overlay:"", overlayColor:"",
+  avatarBg:"#006622", avatarLetter:"L",
+  verified:true,
+  technique:null,
+  explanation:"An official tutorial from an actual bank, explaining their own online banking. This is the opposite of the 'urgent bank warning' bait — it's specific, named, practical, and from a verifiable institution. Very modest view count is normal for a practical tutorial from a single bank.",
+  tip:"Official tutorials from named, verifiable institutions — banks, government departments, charities — are among the most reliable content on YouTube. They have reputations and legal accountability."
+},
+
+{ type:"legit", title:"A Simple Knitted Scarf for Complete Beginners — Full Tutorial | Wool & Stitch",
+  channel:"Wool & Stitch Studio", subs:"89K subscribers", views:"234K views", age:"18 months ago", duration:"31:07",
+  bg:"linear-gradient(135deg,#1a0010,#2a0020)", emoji:"🧶", overlay:"", overlayColor:"",
+  avatarBg:"#880044", avatarLetter:"W",
+  technique:null,
+  explanation:"A specific, honest craft tutorial with a clear description ('full tutorial for complete beginners'). No emotional manipulation, no urgency, no secrets. The channel is consistent in topic (knitting/crafts). This is what genuinely helpful YouTube content looks like — honest, specific, and useful.",
+  tip:"Craft, gardening, cooking, and hobby tutorials with specific descriptive titles are some of the most reliably honest content on YouTube. The specificity is the honesty."
+},
+
+];
+
+// ─────────────────────────────────────────────
+// QUIZ LOGIC
+// ─────────────────────────────────────────────
+let shuffled = [];
+let current = 0;
+let score = 0;
+let correctObvious = 0, correctSubtle = 0, correctLegit = 0;
+let sliderMoved = false;
+
+function shuffle(arr) {
+  let a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  shuffled = shuffle(videos);
+  current = 0; score = 0;
+  correctObvious = 0; correctSubtle = 0; correctLegit = 0;
+  document.getElementById('intro-screen').style.display = 'none';
+  const qa = document.getElementById('quiz-area');
+  qa.classList.remove('hidden');
+  qa.style.display = 'flex';
+  loadVideo();
+}
+
+function loadVideo() {
+  const v = shuffled[current];
+  sliderMoved = false;
+
+  // Progress
+  const pct = (current / shuffled.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `Video ${current + 1} of ${shuffled.length}`;
+  document.getElementById('score-text').textContent = `Score: ${score}`;
+
+  // Thumbnail
+  const thumb = document.getElementById('yt-thumb');
+  thumb.style.background = v.bg;
+  document.getElementById('thumb-emoji').textContent = v.emoji;
+  const ot = document.getElementById('thumb-overlay-text');
+  ot.textContent = v.overlay || '';
+  ot.style.color = v.overlayColor || '#fff';
+  ot.style.background = v.overlay ? 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)' : 'none';
+  document.getElementById('duration-badge').textContent = v.duration;
+
+  // Meta
+  const av = document.getElementById('channel-avatar');
+  av.style.background = v.avatarBg;
+  av.textContent = v.avatarLetter;
+  document.getElementById('yt-title').textContent = v.title;
+  document.getElementById('channel-name').textContent = v.channel;
+  document.getElementById('verified-tick').textContent = v.verified ? ' ✓' : '';
+  document.getElementById('view-count').textContent = v.views;
+  document.getElementById('video-age').textContent = v.age;
+
+  // Slider
+  const slider = document.getElementById('trust-slider');
+  slider.value = 50;
+  updateSliderDisplay();
+  document.getElementById('btn-rate').disabled = false;
+
+  // Hide feedback
+  const fp = document.getElementById('feedback-panel');
+  fp.classList.remove('visible');
+  fp.style.display = 'none';
+}
+
+function sliderLabel(val) {
+  if (val <= 15)  return "Very trustworthy";
+  if (val <= 30)  return "Probably fine";
+  if (val <= 45)  return "Slightly suspicious";
+  if (val <= 55)  return "Not sure";
+  if (val <= 70)  return "Suspicious";
+  if (val <= 85)  return "Likely bait";
+  return "Obvious clickbait";
+}
+
+function updateSliderDisplay() {
+  const val = parseInt(document.getElementById('trust-slider').value);
+  document.getElementById('slider-display').textContent = sliderLabel(val);
+  sliderMoved = true;
+}
+
+function isCorrect(v, userVal) {
+  if (v.type === 'obvious') return userVal >= 60;
+  if (v.type === 'subtle')  return userVal >= 45;
+  if (v.type === 'legit')   return userVal <= 40;
+}
+
+function rateVideo() {
+  const v = shuffled[current];
+  const userVal = parseInt(document.getElementById('trust-slider').value);
+  const correct = isCorrect(v, userVal);
+
+  document.getElementById('btn-rate').disabled = true;
+
+  if (correct) {
+    score++;
+    if (v.type === 'obvious') correctObvious++;
+    if (v.type === 'subtle')  correctSubtle++;
+    if (v.type === 'legit')   correctLegit++;
+  }
+
+  // Verdict
+  const banner = document.getElementById('verdict-banner');
+  const icon = document.getElementById('verdict-icon');
+  const text = document.getElementById('verdict-text');
+  banner.className = 'verdict-banner';
+
+  if (v.type === 'legit') {
+    if (correct) {
+      banner.classList.add('correct');
+      icon.textContent = '✅';
+      text.textContent = 'Good judgement — this one is genuinely fine.';
+    } else {
+      banner.classList.add('missed');
+      icon.textContent = '⚠️';
+      text.textContent = 'This is actually a trustworthy video — here\'s why.';
+    }
+  } else {
+    if (correct) {
+      banner.classList.add('correct');
+      icon.textContent = '🎯';
+      text.textContent = correct && v.type === 'obvious' ? 'Spot on — that\'s clickbait.' : 'Good catch — that\'s subtle bait.';
+    } else {
+      banner.classList.add('missed');
+      icon.textContent = '⚠️';
+      text.textContent = v.type === 'obvious' ? 'This was bait — here\'s the pattern to spot.' : 'This was subtle bait — easy to miss.';
+    }
+  }
+
+  // Technique badge
+  const tb = document.getElementById('technique-badge');
+  if (v.technique) {
+    tb.textContent = v.technique;
+    tb.style.display = 'inline-block';
+  } else {
+    tb.textContent = 'Legitimate Content';
+    tb.style.background = '#27704A';
+    tb.style.display = 'inline-block';
+  }
+
+  document.getElementById('feedback-explanation').textContent = v.explanation;
+  document.getElementById('feedback-tip').textContent = v.tip;
+
+  const fp = document.getElementById('feedback-panel');
+  fp.style.display = 'flex';
+  fp.classList.add('visible');
+  fp.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Last video
+  const nextBtn = document.getElementById('btn-next');
+  if (current === shuffled.length - 1) {
+    nextBtn.textContent = 'See Your Results →';
+  } else {
+    nextBtn.textContent = 'Next Video →';
+  }
+}
+
+function nextVideo() {
+  current++;
+  if (current >= shuffled.length) {
+    showResults();
+  } else {
+    document.getElementById('feedback-panel').classList.remove('visible');
+    document.getElementById('feedback-panel').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    loadVideo();
+  }
+}
+
+function showResults() {
+  document.getElementById('quiz-area').style.display = 'none';
+  const rs = document.getElementById('results-screen');
+  rs.style.display = 'flex';
+
+  document.getElementById('results-score').textContent = `${score}/50`;
+  document.getElementById('res-obvious').textContent = `${correctObvious}/20`;
+  document.getElementById('res-subtle').textContent = `${correctSubtle}/10`;
+  document.getElementById('res-legit').textContent = `${correctLegit}/20`;
+
+  let msg = '';
+  const pct = (score / 50) * 100;
+  if (pct >= 90) msg = "Outstanding. You have a sharp eye for manipulation. You could teach this quiz yourself.";
+  else if (pct >= 75) msg = "Well done. You spot most clickbait and correctly trust genuine content. A little more practice with the subtle bait and you'll be excellent.";
+  else if (pct >= 55) msg = "Good effort. You're catching a lot of obvious bait. The subtle patterns are trickier — they're designed that way. Another round will sharpen your instincts.";
+  else if (pct >= 40) msg = "Not bad for a first go. The patterns become clearer with practice. Focus on the feedback explanations — they contain the key signals to look for.";
+  else msg = "This is exactly why this quiz exists! The good news: your score will improve significantly just by knowing what patterns to look for. Have another go.";
+
+  document.getElementById('results-message').textContent = msg;
+  rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function restartQuiz() {
+  document.getElementById('results-screen').style.display = 'none';
+  startQuiz();
+}
+</script>
+</body>
+</html>
